@@ -1,0 +1,26 @@
+################################################################################
+#  $Id: RELEASE_NOTES 23621 2005-06-20 20:03:35Z npac $
+#  
+#  Copyright(c) 2004-2005, SpikeSource Inc. All Rights Reserved.
+#  Licensed under the Open Source License version 2.1
+#  (See http://www.spikesource.com/license.html)
+################################################################################
+
+===============================
+Spike PHPCoverage Release Notes
+===============================
+
+Version 0.6.6
+===================
+
+ * Known Issues
+ --------------
+   1. Incorrect execution frequency
+      The code coverage execution frequency for some of the PHP lines may
+      not be correct. Xdebug has changed its implementation to only return 1
+      for executed lines. Currently, there is no time frame for fixing this issue in 
+      Spike PHPCoverage.
+
+   2. It takes a long time to generate code coverage report for large sized 
+      applications.
+

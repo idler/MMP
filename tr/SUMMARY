@@ -1,0 +1,3 @@
+This package is a SimpleTest test suite wrapper which
+provides convenient tools for browsing and running test
+cases located in the file system.

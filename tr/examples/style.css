@@ -1,0 +1,8 @@
+body {background-color: white;}
+table {border: 1px solid #4D6FBF;}
+.odd{background-color: #EAF2FD;}
+.odd td{
+  border-top: 1px solid #4D6FBF;
+  border-bottom: 1px solid #4D6FBF;
+}
+.even {}
