@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+require_once __DIR__.'/init.php';
+
 $cnf = dirname(__FILE__).'/config.ini';
 $config =  file_exists($cnf) ? parse_ini_file($cnf) : array();
 

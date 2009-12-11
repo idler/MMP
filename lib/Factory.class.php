@@ -20,8 +20,30 @@ class Factory
       return new HelpController;
 
     $ctrl = $args[1].'Controller';
-      require_once dirname(__FILE__).'/'.$ctrl.'.class.php';
     return new $ctrl(null);
+  }
+
+  /**
+   *
+   * @staticvar <type> $db
+   * @param <type> $config
+   * @return Mysqli 
+   */
+  static function getDbObject($config=array())
+  {
+    static $db = null;
+    $conf = self::$config;
+    if(count($config)){
+      foreach($config as $option=>$value)
+      {
+        $conf[$option] = $value;
+      }
+    }else{
+      if($db) return $db;
+      $db = new Mysqli($conf['host'],$conf['user'],$conf['password'],$conf['db']);
+      return $db;
+    }
+    return new Mysqli($conf['host'],$conf['user'],$conf['password'],$conf['db']);
   }
 
 }
