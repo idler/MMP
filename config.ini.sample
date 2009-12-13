@@ -1,0 +1,6 @@
+host=localhost
+user=root
+password=
+db=mmpi_test
+savedir=db
+verbose=On
