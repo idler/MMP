@@ -8,10 +8,16 @@ class helpController extends AbstractController
   {
     echo <<<HELP
 
-\033[41m \033[1m
-    This is the test help
+MySQL Migration with PHP
+---------------------------------------------------------------------
+  help:       display this help and exit
+  schema:     create schema for initial migration/installation
+  init:       load initial schema (install)
 
-\033[40m\033[0m
+---------------------------------------------------------------------
+Licenced under: GPL v3
+Author: Maxim Antonov <max.antonoff@gmail.com>
+
 
 HELP;
 /*

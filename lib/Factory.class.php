@@ -46,4 +46,15 @@ class Factory
     return new Mysqli($conf['host'],$conf['user'],$conf['password'],$conf['db']);
   }
 
+  static function initDirForSavedMigrations()
+  {
+    if(is_dir(self::$config['savedir'])) return;
+    mkdir(self::$config['savedir'], 0755, true);
+    
+  }
+
+  static public function get($key)
+  {
+    return isset(self::$config[$key]) ? self::$config[$key] : false;
+  }
 }
