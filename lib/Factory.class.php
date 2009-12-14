@@ -62,4 +62,35 @@ class Factory
   {
     if(Factory::get('verbose')) echo $string;
   }
+
+  static function getTmpDbObject()
+  {
+    $config = self::getConfig();
+    $tmpname = $config['db'].'_'.self::getCurrentVersion();
+    $config['db'] = $tmpname;
+    $db = self::getDbObject();
+    $db->query("create database `{$config['db']}`");
+    $tmpdb =  self::getDbObject($config);
+    register_shutdown_function(function() use($config,$tmpdb) {
+      echo "database {$config['db']} droped\n";
+      $tmpdb->query("drop database `{$config['db']}`");
+    });
+    return $tmpdb;
+  }
+
+  static function initVersionTable()
+  {
+    $db = self::getDbObject();
+    $tbl = self::get('versiontable');
+    $rev = self::getCurrentVersion();
+    $db->query("DROP TABLE IF EXISTS `{$tbl}`");
+    $db->query("CREATE TABLE `{$tbl}` (`rev` BIGINT(20) UNSIGNED) ENGINE=MyISAM");
+    $db->query("TRUNCATE `{$tbl}`");
+    $db->query("INSERT INTO `{$tbl}` VALUES({$rev})");
+  }
+
+  static function getCurrentVersion()
+  {
+    return gmmktime();
+  }
 }

@@ -9,6 +9,7 @@ class schemaController extends AbstractController
   public function runStrategy()
   {
     Factory::initDirForSavedMigrations();
+    Factory::initVersionTable();
   
     $db = Factory::getDbObject();
     $result = $db->query('show tables');
@@ -23,7 +24,10 @@ class schemaController extends AbstractController
       $this->queries[] = "DROP TABLE IF EXISTS `{$table}`";
       $this->queries[] = $query;
     }
-
+    $vtab = Factory::get('versiontable');
+    $res = $db->query("SELECT MAX(rev) FROM `{$vtab}`");
+    $row = $res->fetch_array(MYSQLI_NUM);
+    $this->queries[] = "INSERT INTO `{$vtab}` SET rev={$row[0]}";
     $this->writeInFile();
   }
 
