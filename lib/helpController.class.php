@@ -13,6 +13,7 @@ MySQL Migration with PHP
   help:       display this help and exit
   schema:     create schema for initial migration/installation
   init:       load initial schema (install)
+  create:     create new migration
 
 ---------------------------------------------------------------------
 Licenced under: GPL v3

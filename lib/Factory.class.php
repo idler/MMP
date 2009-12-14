@@ -57,4 +57,9 @@ class Factory
   {
     return isset(self::$config[$key]) ? self::$config[$key] : false;
   }
+
+  static function verbose($string)
+  {
+    if(Factory::get('verbose')) echo $string;
+  }
 }
