@@ -27,7 +27,9 @@ class createController extends AbstractController
     foreach($migrations as $revision){
       $this->applyMigration($revision,$tmpdb);
     }
-   
+
+    $diff = new dbDiff($db,$tmpdb);
+    $diff->getDifference();
   }
 
   protected function getAllMigrations()

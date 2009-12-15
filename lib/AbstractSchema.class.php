@@ -4,12 +4,12 @@ abstract class AbstractSchema {
   {
     foreach ($this->queries as $query)
     {
-      Factory::verbose("$query\n");
+      Factory::verbose($query);
       if($db->query($query))
       {
-        Factory::verbose("Ok\n");
+        Factory::verbose("Ok");
       }else{
-        Factory::verbose("Fail\n{$query}\n{$db->error}\n");
+        Factory::verbose("Fail\n{$query}\n{$db->error}");
       }
     }
   }

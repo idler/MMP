@@ -60,7 +60,7 @@ class Factory
 
   static function verbose($string)
   {
-    if(Factory::get('verbose')) echo $string;
+    if(Factory::get('verbose')) echo $string,"\n";
   }
 
   static function getTmpDbObject()
@@ -72,7 +72,7 @@ class Factory
     $db->query("create database `{$config['db']}`");
     $tmpdb =  self::getDbObject($config);
     register_shutdown_function(function() use($config,$tmpdb) {
-      echo "database {$config['db']} droped\n";
+      Factory::verbose("database {$config['db']} droped");
       $tmpdb->query("drop database `{$config['db']}`");
     });
     return $tmpdb;
