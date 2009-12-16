@@ -17,11 +17,12 @@ abstract class AbstractMigration
   {
     foreach($this->up as $query)
     {
-      Factory::verbose($query);
-      $this->db->query($query);
+      Factory::verbose('UP: '.$query);
+      if($this->db->query($query)) Factory::verbose("Ok");
+       else Factory::verbose($db->error);
     }
     $verT = Factory::get('versiontable');
-    $query = "insert into `{$verT}` set `rev`={$this->rev}";
+    $query = "INSERT INTO `{$verT}` SET `rev`={$this->rev}";
     Factory::verbose($query);
     $this->db->query($query);
   }
@@ -33,7 +34,7 @@ abstract class AbstractMigration
       $this->db->query($query);
     }
     $verT = Factory::get('versiontable');
-    $query = "delete `{$verT}` where `rev`={$this->rev}";
+    $query = "DELETE `{$verT}` WHERE `rev`={$this->rev}";
     Factory::verbose($query);
     $this->db->query($query);
   }
