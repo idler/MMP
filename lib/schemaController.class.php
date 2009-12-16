@@ -17,10 +17,7 @@ class schemaController extends AbstractController
     while($row = $result->fetch_array(MYSQLI_NUM))
     {
       $table = $row[0];
-      $tres = $db->query("show create table `{$table}`");
-      $trow = $tres->fetch_array(MYSQLI_NUM);
-      $query = preg_replace('#AUTO_INC\S+#is', '', $trow[1]);
-      $query = str_replace("\n",' ',$query);
+      $query=Factory::getSqlForTableCreation($table, $db);
       $this->queries[] = "DROP TABLE IF EXISTS `{$table}`";
       $this->queries[] = $query;
     }

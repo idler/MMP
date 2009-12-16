@@ -22,28 +22,23 @@ class dbDiff
     $this->last   = $lastDbVersion;
   }
 
+
   public function getDifference()
+  {
+      $this->createFullTableDifference();
+      return $this->difference;
+  }
+
+  public function createFullTableDifference()
   {
     $atab = $this->getTables($this->actual);
     $ltab = $this->getTables($this->last);
     sort($atab); sort($ltab);
-    $max = max(count($atab),count($ltab));
-    for($i=0;$i<$max;$i++)
-    {
-      if(!in_array($atab[$i], $ltab))
-      {
-        $this->addCreateTable($atab[$i],$this->actual);
-        unset($atab[$i]);
-      }else{
-        unset($ltab[$i]); unset($atab[$i]);
-      }
-    }
-
-    foreach($ltab as $t)
-    {
-      $this->addDropTable($t,$this->last);
-    }
-    //var_dump(array($atab,$ltab));
+    
+    $create = array_diff($atab,$ltab);
+    $drop   = array_diff($ltab,$atab);
+    foreach($create as $table) $this->addCreateTable($table, $this->actual);
+    foreach($drop as $table) $this->addDropTable($table, $this->last);
   }
 
   protected function getTables($db)
@@ -59,12 +54,16 @@ class dbDiff
 
   protected function addCreateTable($tname,$db)
   {
-    Factory::verbose("Will create $tname");
+    $this->difference['down'][]= "DROP TABLE IF EXISTS `{$tname}`";
+    $this->difference['up'][] = "DROP TABLE IF EXISTS `{$tname}`";
+    $this->difference['up'][] = Factory::getSqlForTableCreation($tname, $db);
   }
 
   protected function addDropTable($tname,$db)
   {
-    Factory::verbose("Will drop $tname");
+    $this->difference['up'][]= "DROP TABLE IF EXISTS `{$tname}`";
+    $this->difference['down'][] = "DROP TABLE IF EXISTS `{$tname}`";
+    $this->difference['down'][] = Factory::getSqlForTableCreation($tname, $db);
   }
 
 }

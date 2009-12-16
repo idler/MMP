@@ -93,4 +93,14 @@ class Factory
   {
     return gmmktime();
   }
+
+  static function getSqlForTableCreation($tname,$db)
+  {
+      $tres = $db->query("show create table `{$tname}`");
+      $trow = $tres->fetch_array(MYSQLI_NUM);
+      $query = preg_replace('#AUTO_INC\S+#is', '', $trow[1]);
+      $query = str_replace("\n",' ',$query);
+      $query = str_replace("'", '\\\'', $query);
+      return $query;
+  }
 }
