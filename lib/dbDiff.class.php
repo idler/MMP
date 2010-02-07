@@ -105,9 +105,7 @@ class dbDiff
       if(!$has)
       {
         $sql = "ALTER TABLE `{$table}` ADD `{$column['Field']}` {$column['Type']} ";
-        if($column['Null'] === 'NO') $sql .= " not null ";
-        if(!is_null($column['Default'])) $sql .= " default \\'{$column['Default']}\\' ";
-        if($column['Extra'] !='') $sql .= " {$column['extra']} ";
+        $this->addSqlExtras($sql, $column);
         if($column['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
@@ -120,11 +118,9 @@ class dbDiff
       {
         if($column === $memory) continue;
         $sql = "ALTER TABLE `{$table}` CHANGE ".
-        " `{$column['Field']}` `{$column['Field']}` ".
-        " {$column['Type']} ";
-        if($column['Null'] === 'NO') $sql .= " not null ";
-        if(!is_null($column['Default'])) $sql .= " default \\'{$column['Default']}\\' ";
-        if($column['Extra'] !='') $sql .= " {$column['extra']} ";
+          " `{$column['Field']}` `{$column['Field']}` ".
+          " {$column['Type']} ";
+        $this->addSqlExtras($sql, $column);
         if($column['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
@@ -135,11 +131,9 @@ class dbDiff
 
 
         $sql =  "ALTER TABLE `{$table}` CHANGE ".
-        " `{$memory['Field']}` `{$memory['Field']}` ".
-        " {$memory['Type']} ";
-        if($memory['Null'] === 'NO') $sql .= " not null ";
-        if(!is_null($memory['Default'])) $sql .= " default \\'{$memory['Default']}\\' ";
-        if($memory['Extra'] !='') $sql .= " {$memory['extra']} ";
+          " `{$memory['Field']}` `{$memory['Field']}` ".
+          " {$memory['Type']} ";
+        $this->addSqlExtras($sql, $memory);
         if($memory['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
@@ -165,9 +159,7 @@ class dbDiff
       if(!$has)
       {
         $sql = "ALTER TABLE `{$table}` ADD `{$column['Field']}` {$column['Type']} ";
-        if($column['Null'] === 'NO') $sql .= " not null ";
-        if(!is_null($column['Default'])) $sql .= " default \\'{$column['Default']}\\s' ";
-        if($column['Extra'] !='') $sql .= " {$column['extra']} ";
+        $this->addSqlExtras($sql, $column);
         if($column['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
@@ -178,6 +170,13 @@ class dbDiff
       }
     }
 
+  }
+
+  protected function addSqlExtras( &$sql,$column )
+  {
+    if($column['Null'] === 'NO') $sql .= " not null ";
+    if(!is_null($column['Default'])) $sql .= " default \\'{$column['Default']}\\' ";
+    if($column['Extra'] !='') $sql .= " {$column['extra']} ";
   }
 }
 
