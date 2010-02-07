@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__).'/AbstractController.class.php';
+require_once __DIR__.'/AbstractController.class.php';
 
 class createController extends AbstractController
 {

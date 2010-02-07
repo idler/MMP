@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__).'/helpController.class.php';
+require_once __DIR__.'/helpController.class.php';
 
 class Factory
 {
@@ -20,25 +20,28 @@ class Factory
       return new HelpController;
 
     $ctrl = $args[1].'Controller';
-    return new $ctrl(null);
+    return new $ctrl(null,$args);
   }
 
   /**
    *
    * @staticvar <type> $db
-   * @param <type> $config
-   * @return Mysqli 
+   * @param array $config
+   * @return Mysqli
    */
   static function getDbObject($config=array())
   {
     static $db = null;
     $conf = self::$config;
-    if(count($config)){
+    if(count($config))
+    {
       foreach($config as $option=>$value)
       {
         $conf[$option] = $value;
       }
-    }else{
+    }
+    else
+    {
       if($db) return $db;
       $db = new Mysqli($conf['host'],$conf['user'],$conf['password'],$conf['db']);
       return $db;
@@ -50,7 +53,7 @@ class Factory
   {
     if(is_dir(self::$config['savedir'])) return;
     mkdir(self::$config['savedir'], 0755, true);
-    
+
   }
 
   static public function get($key)
@@ -71,10 +74,12 @@ class Factory
     $db = self::getDbObject();
     $db->query("create database `{$config['db']}`");
     $tmpdb =  self::getDbObject($config);
-    register_shutdown_function(function() use($config,$tmpdb) {
-      Factory::verbose("database {$config['db']} droped");
-      $tmpdb->query("drop database `{$config['db']}`");
-    });
+    register_shutdown_function(function() use($config,$tmpdb)
+    {
+        Factory::verbose("database {$config['db']} droped");
+        $tmpdb->query("drop database `{$config['db']}`");
+      })
+    ;
     return $tmpdb;
   }
 
@@ -96,11 +101,19 @@ class Factory
 
   static function getSqlForTableCreation($tname,$db)
   {
-      $tres = $db->query("show create table `{$tname}`");
-      $trow = $tres->fetch_array(MYSQLI_NUM);
-      $query = preg_replace('#AUTO_INCREMENT=\S+#is', '', $trow[1]);
-      $query = str_replace("\n",' ',$query);
-      $query = str_replace("'", '\\\'', $query);
-      return $query;
+    $tres = $db->query("SHOW CREATE TABLE `{$tname}`");
+    $trow = $tres->fetch_array(MYSQLI_NUM);
+    $query = preg_replace('#AUTO_INCREMENT=\S+#is', '', $trow[1]);
+    $query = str_replace("\n",' ',$query);
+    $query = str_replace("'", '\\\'', $query);
+    return $query;
+  }
+
+  static function getDatabaseVersion(Mysqli $db)
+  { 
+    $tbl = self::get('versiontable');
+    $res = $db->query("SELECT max(rev) from `{$tbl}`");
+    $row = $res->fetch_array(MYSQLI_NUM);
+    return intval($row[0]);    
   }
 }

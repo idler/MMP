@@ -4,7 +4,7 @@ class Config
   static protected $instance = null;
   function __construct()
   {
-    $ini = parse_ini_file(dirname(__FILE__).'/../config.ini');
+    $ini = parse_ini_file(__DIR__.'/../config.ini');
 
   }
   static function instance()

@@ -34,7 +34,7 @@ abstract class AbstractMigration
       $this->db->query($query);
     }
     $verT = Factory::get('versiontable');
-    $query = "DELETE `{$verT}` WHERE `rev`={$this->rev}";
+    $query = "DELETE FROM `{$verT}` WHERE `rev`={$this->rev}";
     Factory::verbose($query);
     $this->db->query($query);
   }
