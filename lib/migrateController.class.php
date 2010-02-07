@@ -38,7 +38,7 @@ class migrateController extends AbstractController
       { echo "$migration\n";
         if($migration>$revision) continue;        
         if($migration < $target_migration) break;
-        $this->applyMigration($migration, $db, $direction);
+        Factory::applyMigration($migration, $db, $direction);
       }
 
     }
@@ -48,7 +48,7 @@ class migrateController extends AbstractController
       {
         if($migration<=$revision) continue;
         if($migration > $target_migration) break;
-        $this->applyMigration($migration, $db, $direction);
+        Factory::applyMigration($migration, $db, $direction);
       }
     }
 
@@ -70,16 +70,6 @@ class migrateController extends AbstractController
     }
     sort($result,SORT_NUMERIC);
     return $result;
-  }
-
-  protected function applyMigration($revision,$db,$direction)
-  {echo "apply $revision\n";
-    require_once Factory::get('savedir').'/migration'.$revision.'.php';
-    $classname = 'Migration'.$revision;
-    $migration = new $classname($db);
-    $method = 'run'.$direction;
-    $migration->$method();
-    echo "x\n";
   }
 }
 

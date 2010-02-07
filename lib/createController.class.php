@@ -40,14 +40,6 @@ class createController extends AbstractController
     return $result;
   }
 
-  protected function applyMigration($revision,$db)
-  {
-    require_once Factory::get('savedir').'/migration'.$revision.'.php';
-    $classname = 'Migration'.$revision;
-    $migration = new $classname($db);
-    $migration->runUp();
-  }
-
   protected function loadTmpDb($db)
   {
     $fname = Factory::get('savedir').'/schema.php';
@@ -63,7 +55,7 @@ class createController extends AbstractController
 
     $migrations = $this->getAllMigrations();
     foreach($migrations as $revision){
-      $this->applyMigration($revision,$db);
+      Factory::applyMigration($revision,$db);
     }
 
   }

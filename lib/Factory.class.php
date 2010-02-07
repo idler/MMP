@@ -116,4 +116,16 @@ class Factory
     $row = $res->fetch_array(MYSQLI_NUM);
     return intval($row[0]);    
   }
+
+
+  static function applyMigration($revision,$db,$direction = 'Up')
+  {
+    require_once self::get('savedir').'/migration'.$revision.'.php';
+    $classname = 'Migration'.$revision;
+    $migration = new $classname($db);
+    $method = 'run'.$direction;
+    $migration->$method();
+  }
+
+
 }
