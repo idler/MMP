@@ -53,7 +53,6 @@ class Factory
   {
     if(is_dir(self::$config['savedir'])) return;
     mkdir(self::$config['savedir'], 0755, true);
-
   }
 
   static public function get($key)
@@ -63,7 +62,7 @@ class Factory
 
   static function verbose($string)
   {
-    if(Factory::get('verbose')) echo $string,"\n";
+    if(self::get('verbose')) echo $string,"\n";
   }
 
   static function getTmpDbObject()
@@ -143,7 +142,7 @@ class Factory
   
   static function loadTmpDb($db)
   {
-    $fname = Factory::get('savedir').'/schema.php';
+    $fname = self::get('savedir').'/schema.php';
     if(!file_exists($fname))
     {
       echo "File: {$fname} not exists!\n";
@@ -154,9 +153,9 @@ class Factory
     $sc = new Schema();
     $sc->load($db);
 
-    $migrations = Factory::getAllMigrations();
+    $migrations = self::getAllMigrations();
     foreach($migrations as $revision){
-      Factory::applyMigration($revision,$db);
+      self::applyMigration($revision,$db);
     }
 
   }
