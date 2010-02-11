@@ -104,7 +104,7 @@ class dbDiff
       }
       if(!$has)
       {
-        $sql = "ALTER TABLE `{$table}` ADD `{$column['Field']}` {$column['Type']} ";
+        $sql = $this->addColumn($table,$column);
         $this->addSqlExtras($sql, $column);
         if($column['Key'] === 'PRI')
         {
@@ -112,7 +112,7 @@ class dbDiff
           $this->difference['up'][] = "ALTER TABLE `{$table}` DROP PRIMARY KEY";
         }
         $this->difference['up'][] = $sql;
-        $this->difference['down'][] = "ALTER TABLE `{$table}` DROP {$column['Field']}";
+        $this->difference['down'][] = $this->dropColumn($table,$column);
       }
       else
       {
@@ -158,7 +158,7 @@ class dbDiff
       }
       if(!$has)
       {
-        $sql = "ALTER TABLE `{$table}` ADD `{$column['Field']}` {$column['Type']} ";
+        $sql = $this->addColumn($table, $column);
         $this->addSqlExtras($sql, $column);
         if($column['Key'] === 'PRI')
         {
@@ -166,7 +166,7 @@ class dbDiff
           $this->difference['down'][] = "ALTER TABLE `{$table}` DROP PRIMARY KEY";
         }
         $this->difference['down'][] = $sql;
-        $this->difference['up'][] = "ALTER TABLE `{$table}` DROP {$column['Field']}";
+        $this->difference['up'][] = $this->dropColumn($table, $column);
       }
     }
 
@@ -177,6 +177,14 @@ class dbDiff
     if($column['Null'] === 'NO') $sql .= " not null ";
     if(!is_null($column['Default'])) $sql .= " default \\'{$column['Default']}\\' ";
     if($column['Extra'] !='') $sql .= " {$column['extra']} ";
+  }
+  protected function addColumn($table,$column)
+  {
+    return "ALTER TABLE `{$table}` ADD `{$column['Field']}` {$column['Type']} ";
+  }
+  protected function dropColumn($table,$column)
+  {
+    return "ALTER TABLE `{$table}` DROP {$column['Field']}";
   }
 }
 
