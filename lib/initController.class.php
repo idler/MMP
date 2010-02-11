@@ -30,7 +30,8 @@ class initController extends AbstractController
         return;
       }
       if($c ==='N' or $c==='n' ){
-        echo "\nExit without changing shema\n"; exit;
+        echo "\nExit without changing shema\n";
+        exit;
       }
 
     }while(true);

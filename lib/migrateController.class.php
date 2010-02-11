@@ -31,7 +31,7 @@ class migrateController extends AbstractController
     $direction = $revision <= $target_migration ? 'Up' : 'Down';
 
     if($direction === 'Down')
-    {echo "down\n";
+    {
       $migrations = array_reverse($migrations);
       
       foreach($migrations as $migration)
@@ -43,7 +43,7 @@ class migrateController extends AbstractController
 
     }
     else
-    {echo "up\n";
+    {
       foreach($migrations as $migration)
       {
         if($migration<=$revision) continue;
@@ -53,9 +53,5 @@ class migrateController extends AbstractController
     }
 
   }
-
-
-
-
 }
 

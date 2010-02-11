@@ -8,13 +8,13 @@ class helpController extends AbstractController
   {
     echo <<<HELP
 
-\033[40m                    MySQL Migration with PHP                         \033[49m
+\033[31m\033[46m                    MySQL Migration with PHP                         \033[0m
 ---------------------------------------------------------------------
-  help:       display this help and exit
-  schema:     create schema for initial migration/installation
-  init:       load initial schema (install)
-  create:     create new migration
-  migrate:    migrate to specified time
+  \033[32mhelp:\033[0m       display this help and exit
+  \033[32mschema:\033[0m     create schema for initial migration/installation
+  \033[32minit:\033[0m       load initial schema (install)
+  \033[32mcreate:\033[0m     create new migration
+  \033[32mmigrate:\033[0m    migrate to specified time
   
 In migrate comand you can use strtotime format
 Examples:
