@@ -13,6 +13,3 @@ Factory::setConfig($config);
 $controller = Factory::getController($argv);
 $controller->runStrategy();
 
-
-
-
