@@ -61,15 +61,15 @@ class dbDiff
 
   protected function addCreateTable($tname,$db)
   {
-    $this->difference['down'][]= "DROP TABLE IF EXISTS `{$tname}`";
-    $this->difference['up'][] = "DROP TABLE IF EXISTS `{$tname}`";
-    $this->difference['up'][] = Factory::getSqlForTableCreation($tname, $db);
+    $this->difference['down'][] = $this->dropTable($tname);
+    $this->difference['up'][]   = $this->dropTable($tname);
+    $this->difference['up'][]   = Factory::getSqlForTableCreation($tname, $db);
   }
 
   protected function addDropTable($tname,$db)
   {
-    $this->difference['up'][]= "DROP TABLE IF EXISTS `{$tname}`";
-    $this->difference['down'][] = "DROP TABLE IF EXISTS `{$tname}`";
+    $this->difference['up'][]   = $this->dropTable($tname);
+    $this->difference['down'][] = $this->dropTable($tname);;
     $this->difference['down'][] = Factory::getSqlForTableCreation($tname, $db);
   }
   protected function createDifferenceBetweenTables($tables)
@@ -109,7 +109,7 @@ class dbDiff
         if($column['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
-          $this->difference['up'][] = "ALTER TABLE `{$table}` DROP PRIMARY KEY";
+          $this->difference['up'][] = $this->dropPrimary($table);
         }
         $this->difference['up'][] = $sql;
         $this->difference['down'][] = $this->dropColumn($table,$column);
@@ -117,27 +117,23 @@ class dbDiff
       else
       {
         if($column === $memory) continue;
-        $sql = "ALTER TABLE `{$table}` CHANGE ".
-          " `{$column['Field']}` `{$column['Field']}` ".
-          " {$column['Type']} ";
+        $sql = $this->changeColumn($table,$column);
         $this->addSqlExtras($sql, $column);
         if($column['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
-          $this->difference['up'][] = "ALTER TABLE `{$table}` DROP PRIMARY KEY";
+          $this->difference['up'][] = $this->dropPrimary($table);
         }
         $this->difference['up'][] = $sql;
 
 
 
-        $sql =  "ALTER TABLE `{$table}` CHANGE ".
-          " `{$memory['Field']}` `{$memory['Field']}` ".
-          " {$memory['Type']} ";
+        $sql =  $this->changeColumn($table,$memory);
         $this->addSqlExtras($sql, $memory);
         if($memory['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
-          $this->difference['down'][] = "ALTER TABLE `{$table}` DROP PRIMARY KEY";
+          $this->difference['down'][] = $this->dropPrimary($table);
         }
         $this->difference['down'][] = $sql;
       }
@@ -163,7 +159,7 @@ class dbDiff
         if($column['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
-          $this->difference['down'][] = "ALTER TABLE `{$table}` DROP PRIMARY KEY";
+          $this->difference['down'][] = $this->dropPrimary($table);
         }
         $this->difference['down'][] = $sql;
         $this->difference['up'][] = $this->dropColumn($table, $column);
@@ -185,6 +181,21 @@ class dbDiff
   protected function dropColumn($table,$column)
   {
     return "ALTER TABLE `{$table}` DROP {$column['Field']}";
+  }
+
+  protected function dropTable($t)
+  {
+    return "DROP TABLE IF EXISTS `{$t}`";
+  }
+  protected function changeColumn($table,$column)
+  {
+    return "ALTER TABLE `{$table}` CHANGE ".
+          " `{$column['Field']}` `{$column['Field']}` ".
+          " {$column['Type']} ";
+  }
+  protected function dropPrimary($table)
+  {
+    return "ALTER TABLE `{$table}` DROP PRIMARY KEY";
   }
 }
 
