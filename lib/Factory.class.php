@@ -127,5 +127,56 @@ class Factory
     $migration->$method();
   }
 
+  static function getAllMigrations()
+  {
+    $dir = self::get('savedir');
+    $files = glob($dir.'/migration*.php');
+    $result = array();
+    foreach($files as $file)
+    {
+      $key = preg_replace('#[^0-9]#is', '', $file);
+      $result[] = $key;
+    }
+    sort($result,SORT_NUMERIC);
+    return $result;
+  }
+  
+  static function loadTmpDb($db)
+  {
+    $fname = Factory::get('savedir').'/schema.php';
+    if(!file_exists($fname))
+    {
+      echo "File: {$fname} not exists!\n";
+      exit;
+    }
 
+    require_once $fname;
+    $sc = new Schema();
+    $sc->load($db);
+
+    $migrations = Factory::getAllMigrations();
+    foreach($migrations as $revision){
+      Factory::applyMigration($revision,$db);
+    }
+
+  }
+
+  static function createMigrationContent($version,$diff)
+  {
+      $content = "<?php\n class Migration{$version} extends AbstractMigration\n{\n".
+      "  protected \$up = array(\n";
+      foreach($diff['up'] as $sql)
+      {
+        $content .= "    '{$sql}',\n";
+      }
+      $content .= "  );\n  protected \$down = array(\n";
+
+      foreach($diff['down'] as $sql)
+      {
+        $content .= "    '{$sql}',\n";
+      }
+      $content .= "  );\n  protected \$rev = {$version};\n}\n";
+
+      return $content;
+  }
 }

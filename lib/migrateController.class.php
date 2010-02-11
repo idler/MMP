@@ -24,7 +24,7 @@ class migrateController extends AbstractController
 
     if(false === $target_migration) throw new Exception("Time is not correct");
 
-    $migrations = $this->getAllMigrations();
+    $migrations = Factory::getAllMigrations();
 
     $revision = Factory::getDatabaseVersion($db);
 
@@ -57,19 +57,5 @@ class migrateController extends AbstractController
 
 
 
-
-  protected function getAllMigrations()
-  {
-    $dir = Factory::get('savedir');
-    $files = glob($dir.'/migration*.php');
-    $result = array();
-    foreach($files as $file)
-    {
-      $key = preg_replace('#[^0-9]#is', '', $file);
-      $result[] = $key;
-    }
-    sort($result,SORT_NUMERIC);
-    return $result;
-  }
 }
 
