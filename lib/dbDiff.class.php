@@ -90,8 +90,16 @@ class dbDiff
       $ares = $this->actual->query($query);
       $lres = $this->last->query($query);
       $acols = $lcols = array();
-      while ($row = $ares->fetch_assoc()) $acols[] = $row;
-      while ($row = $lres->fetch_assoc()) $lcols[] = $row;
+      while ($row = $ares->fetch_assoc())
+      {
+        unset($row['Key']);
+        $acols[] = $row;
+      }
+      while ($row = $lres->fetch_assoc())
+      {
+        unset($row['Key']);
+        $lcols[] = $row;
+      }
       $this->createDifferenceByTable($table, $acols, $lcols);
     }
   }
@@ -116,11 +124,11 @@ class dbDiff
       {
         $sql = $this->addColumn($table, $column);
         $this->addSqlExtras($sql, $column);
-        if ($column['Key'] === 'PRI')
+        /*if ($column['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
           $this->up($this->dropPrimary($table));
-        }
+        }*/
         $this->up($sql);
         $this->down($this->dropColumn($table, $column));
       }
@@ -129,22 +137,22 @@ class dbDiff
         if ($column === $memory) continue;
         $sql = $this->changeColumn($table, $column);
         $this->addSqlExtras($sql, $column);
-        if ($column['Key'] === 'PRI')
+        /*if ($column['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
           $this->up($this->dropPrimary($table));
-        }
+        }*/
         $this->up($sql);
 
 
 
         $sql = $this->changeColumn($table, $memory);
         $this->addSqlExtras($sql, $memory);
-        if ($memory['Key'] === 'PRI')
+        /*if ($memory['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
           $this->down($this->dropPrimary($table));
-        }
+        }*/
         $this->down($sql);
       }
     }
@@ -166,11 +174,11 @@ class dbDiff
       {
         $sql = $this->addColumn($table, $column);
         $this->addSqlExtras($sql, $column);
-        if ($column['Key'] === 'PRI')
+        /*if ($column['Key'] === 'PRI')
         {
           $sql .= " PRIMARY KEY ";
           $this->down($this->dropPrimary($table));
-        }
+        }*/
         $this->down($sql);
         $this->up($this->dropColumn($table, $column));
       }
