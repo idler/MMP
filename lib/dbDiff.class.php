@@ -7,12 +7,16 @@ class dbDiff
    *
    * @var mysqli
    */
-  protected $actual;
+  protected $current;
   /**
    *
    * @var mysqli
    */
-  protected $last;
+  protected $published;
+  /**
+   *
+   * @var array
+   */
   protected $difference = array('up' => array(), 'down' => array());
   
   protected function up($sql)
@@ -25,35 +29,35 @@ class dbDiff
     $this->difference['down'][] = $sql;
   }
   
-  public function __construct($actualDbVersion, $lastDbVersion)
+  public function __construct($currentDbVersion, $lastPublishedDbVersion)
   {
-    $this->actual = $actualDbVersion;
-    $this->last = $lastDbVersion;
+    $this->current = $currentDbVersion;
+    $this->published = $lastPublishedDbVersion;
   }
   
   public function getDifference()
   {
-    $atab = $this->getTables($this->actual);
-    $ltab = $this->getTables($this->last);
-    sort($atab);
-    sort($ltab);
-    $this->createFullTableDifference($atab, $ltab);
+    $current_tables = $this->getTables($this->current);
+    $published_tables = $this->getTables($this->published);
+    sort($current_tables);
+    sort($published_tables);
+    $this->createFullTableDifference($current_tables, $published_tables);
 
-    $common = array_intersect($atab, $ltab);
+    $common = array_intersect($current_tables, $published_tables);
     $this->createDifferenceBetweenTables($common);
     return $this->difference;
   }
   
-  public function createFullTableDifference($atab, $ltab)
+  protected function createFullTableDifference($current_tables, $published_tables)
   {
 
-    sort($atab);
-    sort($ltab);
+    sort($current_tables);
+    sort($published_tables);
 
-    $create = array_diff($atab, $ltab);
-    $drop = array_diff($ltab, $atab);
-    foreach ($create as $table) $this->addCreateTable($table, $this->actual);
-    foreach ($drop as $table) $this->addDropTable($table, $this->last);
+    $create = array_diff($current_tables, $published_tables);
+    $drop = array_diff($published_tables, $current_tables);
+    foreach ($create as $table) $this->addCreateTable($table, $this->current);
+    foreach ($drop as $table) $this->addDropTable($table, $this->published);
   }
   
   protected function getTables($db)
@@ -78,7 +82,6 @@ class dbDiff
   {
     $this->up($this->dropTable($tname));
     $this->down($this->dropTable($tname));
-    ;
     $this->down(Factory::getSqlForTableCreation($tname, $db));
   }
   
@@ -87,100 +90,58 @@ class dbDiff
     foreach ($tables as $table)
     {
       $query = "DESCRIBE `{$table}`";
-      $ares = $this->actual->query($query);
-      $lres = $this->last->query($query);
-      $acols = $lcols = array();
-      while ($row = $ares->fetch_assoc())
-      {
-        unset($row['Key']);
-        $acols[] = $row;
-      }
-      while ($row = $lres->fetch_assoc())
-      {
-        unset($row['Key']);
-        $lcols[] = $row;
-      }
-      $this->createDifferenceByTable($table, $acols, $lcols);
+      $table_current_columns = $this->getColumnList($this->current->query($query));
+      $table_published_columns = $this->getColumnList($this->published->query($query));
+
+      $this->createDifferenceInsideTable($table, $table_current_columns, $table_published_columns);
     }
   }
   
-  protected function createDifferenceByTable($table, $acols, $lcols)
+  protected function getColumnList($result)
+  {
+    $columns = array();
+    while ($row = $result->fetch_assoc())
+    {
+      unset($row['Key']);
+      $columns[] = $row;
+    }
+    return $columns;
+  }
+  
+  protected function createDifferenceInsideTable($table, $table_current_columns, $table_published_columns)
   {
 
-    foreach ($acols as $column)
+    foreach ($table_current_columns as $current_column)
     {
-      $memory = null;
-      $has = false;
-      foreach ($lcols as $col)
+      $column_for_compare = $this->checkColumnExists($current_column, $table_published_columns);
+//var_dump($column_for_compare);
+      if (!$column_for_compare)
       {
-        if ($col['Field'] === $column['Field'])
-        {
-          $has = true;
-          $memory = $col;
-          break;
-        }
-      }
-      if (!$has)
-      {
-        $sql = $this->addColumn($table, $column);
-        $this->addSqlExtras($sql, $column);
-        /*if ($column['Key'] === 'PRI')
-        {
-          $sql .= " PRIMARY KEY ";
-          $this->up($this->dropPrimary($table));
-        }*/
+        $sql = $this->addColumn($table, $current_column);
         $this->up($sql);
-        $this->down($this->dropColumn($table, $column));
+        $this->down($this->dropColumn($table, $current_column));
       }
       else
       {
-        if ($column === $memory) continue;
-        $sql = $this->changeColumn($table, $column);
-        $this->addSqlExtras($sql, $column);
-        /*if ($column['Key'] === 'PRI')
-        {
-          $sql .= " PRIMARY KEY ";
-          $this->up($this->dropPrimary($table));
-        }*/
+        if ($current_column === $column_for_compare) continue;
+        $sql = $this->changeColumn($table, $current_column);
         $this->up($sql);
-
-
-
-        $sql = $this->changeColumn($table, $memory);
-        $this->addSqlExtras($sql, $memory);
-        /*if ($memory['Key'] === 'PRI')
-        {
-          $sql .= " PRIMARY KEY ";
-          $this->down($this->dropPrimary($table));
-        }*/
+        $sql = $this->changeColumn($table, $column_for_compare);
         $this->down($sql);
       }
     }
 
 
-    foreach ($lcols as $column)
+    foreach ($table_published_columns as $published_column)
     {
 
-      $has = false;
-      foreach ($acols as $col)
-      {
-        if ($col['Field'] === $column['Field'])
-        {
-          $has = true;
-          break;
-        }
-      }
+      $has = $this->checkColumnExists($published_column, $table_current_columns);
+      
       if (!$has)
       {
-        $sql = $this->addColumn($table, $column);
-        $this->addSqlExtras($sql, $column);
-        /*if ($column['Key'] === 'PRI')
-        {
-          $sql .= " PRIMARY KEY ";
-          $this->down($this->dropPrimary($table));
-        }*/
+        $sql = $this->addColumn($table, $published_column);
         $this->down($sql);
-        $this->up($this->dropColumn($table, $column));
+        $this->up($this->dropColumn($table, $published_column));
       }
     }
   }
@@ -189,12 +150,22 @@ class dbDiff
   {
     if ($column['Null'] === 'NO') $sql .= " not null ";
     if (!is_null($column['Default'])) $sql .= " default \\'{$column['Default']}\\' ";
-    if ($column['Extra'] != '') $sql .= " {$column['extra']} ";
+  }
+  
+  protected function changeColumn($table, $column)
+  {
+    $sql = "ALTER TABLE `{$table}` CHANGE " .
+      " `{$column['Field']}` `{$column['Field']}` " .
+      " {$column['Type']} ";
+    $this->addSqlExtras($sql, $column);
+    return $sql;
   }
   
   protected function addColumn($table, $column)
   {
-    return "ALTER TABLE `{$table}` ADD `{$column['Field']}` {$column['Type']} ";
+    $sql = "ALTER TABLE `{$table}` ADD `{$column['Field']}` {$column['Type']} ";
+    $this->addSqlExtras($sql, $column);
+    return $sql;
   }
   
   protected function dropColumn($table, $column)
@@ -207,16 +178,16 @@ class dbDiff
     return "DROP TABLE IF EXISTS `{$t}`";
   }
   
-  protected function changeColumn($table, $column)
+  protected function checkColumnExists($column, $column_list)
   {
-    return "ALTER TABLE `{$table}` CHANGE " .
-      " `{$column['Field']}` `{$column['Field']}` " .
-      " {$column['Type']} ";
-  }
-  
-  protected function dropPrimary($table)
-  {
-    return "ALTER TABLE `{$table}` DROP PRIMARY KEY";
+    foreach ($column_list as $compare_column)
+    {
+      if ($compare_column['Field'] === $column['Field'])
+      {
+        return $compare_column;
+      }
+    }
+    return false;
   }
 
 }
