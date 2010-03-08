@@ -114,7 +114,7 @@ class dbDiff
     foreach ($table_current_columns as $current_column)
     {
       $column_for_compare = $this->checkColumnExists($current_column, $table_published_columns);
-//var_dump($column_for_compare);
+
       if (!$column_for_compare)
       {
         $sql = $this->addColumn($table, $current_column);

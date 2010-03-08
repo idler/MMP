@@ -19,7 +19,7 @@ abstract class AbstractMigration
     {
       Factory::verbose('UP: '.$query);
       if($this->db->query($query)) Factory::verbose("Ok");
-       else Factory::verbose($db->error);
+       else Factory::verbose($this->db->error);
     }
     $verT = Factory::get('versiontable');
     $query = "INSERT INTO `{$verT}` SET `rev`={$this->rev}";
