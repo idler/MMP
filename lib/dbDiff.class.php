@@ -92,8 +92,8 @@ class dbDiff
       $query = "DESCRIBE `{$table}`";
       $table_current_columns = $this->getColumnList($this->current->query($query));
       $table_published_columns = $this->getColumnList($this->published->query($query));
-
       $this->createDifferenceInsideTable($table, $table_current_columns, $table_published_columns);
+      $this->createIndexDifference($table);
     }
   }
   
@@ -136,7 +136,7 @@ class dbDiff
     {
 
       $has = $this->checkColumnExists($published_column, $table_current_columns);
-      
+
       if (!$has)
       {
         $sql = $this->addColumn($table, $published_column);
@@ -188,6 +188,95 @@ class dbDiff
       }
     }
     return false;
+  }
+  
+  protected function createIndexDifference($table)
+  {
+    $current_indexes = $this->getIndexListFromTable($table, $this->current);
+    $published_indexes = $this->getIndexListFromTable($table, $this->published);
+
+    foreach ($current_indexes as $cur_index)
+    {
+      $index_for_compare = $this->checkIndexExists($cur_index, $published_indexes);
+      if (!$index_for_compare)
+      {
+        $this->down($this->dropIndex($cur_index));
+        $this->up($this->dropIndex($cur_index));
+        $this->up($this->addIndex($cur_index));
+      }
+      elseif($index_for_compare === $cur_index)
+      {
+        continue;
+      }
+      else // index exists but not identical
+      {
+        $this->down($this->dropIndex($cur_index));
+        $this->down($this->addIndex($index_for_compare));
+        $this->up($this->dropIndex($cur_index));
+        $this->up($this->addIndex($cur_index));
+      }
+    }
+  }
+  
+  protected function getIndexListFromTable($table, mysqli $connection)
+  {
+    $sql = "SHOW INDEXES FROM `{$table}`";
+    $res = $connection->query($sql);
+    $indexes = array();
+    while ($row = $res->fetch_array(MYSQLI_ASSOC))
+    {
+      if (!isset($indexes[$row['Key_name']])) $indexes[$row['Key_name']] = array();
+      $indexes[$row['Key_name']]['unique'] = !intval($row['Non_unique']);
+      $indexes[$row['Key_name']]['type'] = $row['Index_type'];
+      $indexes[$row['Key_name']]['name'] = $row['Key_name'];
+      $indexes[$row['Key_name']]['table'] = $row['Table'];
+      if (!isset($indexes[$row['Key_name']]['fields'])) $indexes[$row['Key_name']]['fields'] = array();
+      $indexes[$row['Key_name']]['fields'][$row['Seq_in_index']] =
+        array(
+        'name' => $row['Column_name'],
+        'length' => $row['Sub_part']
+      );
+
+    }
+    return $indexes;
+  }
+  
+  protected function checkIndexExists($index, $index_list)
+  {
+    foreach($index_list as $comparing_index)
+    {
+      if($index['name']===$comparing_index['name'])
+      {
+        return $comparing_index;
+      }
+    }
+    return false;
+  }
+  
+  protected function addIndex($index)
+  {
+    $index_string = "CREATE ";
+    if($index['type']==='FULLTEXT') $index_string .= " FULLTEXT ";
+    if($index['unique']) $index_string .= " UNIQUE ";
+    $index_string .= " INDEX `{$index['name']}` ";
+    if(in_array($index['type'], array('RTREE','BTREE','HASH',)))
+    {
+      $index_string .= " USING {$index['type']} ";
+    }
+    $index_string .= " on `{$index['table']}` ";
+    $fields = array();
+    foreach($index['fields'] as $f)
+    {
+      $len = intval($f['length'])?"({$f['length']})":'';
+      $fields[] = "{$f['name']}".$len;
+    }
+    $index_string .= "(".implode(',',$fields).")";
+    return $index_string;
+  }
+
+  protected function dropIndex($index)
+  {
+    return "DROP INDEX `{$index['name']}` on `{$index['table']}`";
   }
 
 }
