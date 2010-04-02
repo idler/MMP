@@ -14,6 +14,7 @@ class helpController extends AbstractController
   \033[1;32mschema:\033[0m     create schema for initial migration/installation
   \033[1;32minit:\033[0m       load initial schema (install)
   \033[1;32mcreate:\033[0m     create new migration
+  \033[1;32mlist:\033[0m       list available migrations and mark current version
   \033[1;32mmigrate:\033[0m    migrate to specified time
   
 In migrate comand you can use strtotime format
