@@ -38,7 +38,7 @@ class migrateController extends AbstractController
       { 
         if($migration>$revision) continue;        
         if($migration < $target_migration) break;
-        echo "Migrating to: " . date('r',$migration) . "\n";
+        echo "ROLLBACK: " . date('r',$migration) . "\n";
         Helper::applyMigration($migration, $db, $direction);
       }
 
@@ -49,7 +49,7 @@ class migrateController extends AbstractController
       {
         if($migration<=$revision) continue;
         if($migration > $target_migration) break;
-        echo "Migrating to: " . date('r',$migration) . "\n";
+        echo "APPLY: " . date('r',$migration) . "\n";
         Helper::applyMigration($migration, $db, $direction);
       }
     }

@@ -9,6 +9,7 @@ abstract class AbstractMigration
 
   protected $up = array();
   protected $down = array();
+  protected $rev = 0;
   public function  __construct(mysqli $db)
   {
     $this->db = $db;
