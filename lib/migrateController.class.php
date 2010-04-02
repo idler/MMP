@@ -9,7 +9,7 @@ class migrateController extends AbstractController
   public function runStrategy()
   {
 
-    $db = Factory::getDbObject();
+    $db = Helper::getDbObject();
 
 
     if(count($this->args) < 3) $this->args[2] = 'now';
@@ -24,9 +24,9 @@ class migrateController extends AbstractController
 
     if(false === $target_migration) throw new Exception("Time is not correct");
 
-    $migrations = Factory::getAllMigrations();
+    $migrations = Helper::getAllMigrations();
 
-    $revision = Factory::getDatabaseVersion($db);
+    $revision = Helper::getDatabaseVersion($db);
 
     $direction = $revision <= $target_migration ? 'Up' : 'Down';
 
@@ -38,7 +38,7 @@ class migrateController extends AbstractController
       { echo "$migration\n";
         if($migration>$revision) continue;        
         if($migration < $target_migration) break;
-        Factory::applyMigration($migration, $db, $direction);
+        Helper::applyMigration($migration, $db, $direction);
       }
 
     }
@@ -48,7 +48,7 @@ class migrateController extends AbstractController
       {
         if($migration<=$revision) continue;
         if($migration > $target_migration) break;
-        Factory::applyMigration($migration, $db, $direction);
+        Helper::applyMigration($migration, $db, $direction);
       }
     }
 

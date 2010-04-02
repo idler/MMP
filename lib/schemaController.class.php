@@ -8,20 +8,20 @@ class schemaController extends AbstractController
 
   public function runStrategy()
   {
-    Factory::initDirForSavedMigrations();
-    Factory::initVersionTable();
+    Helper::initDirForSavedMigrations();
+    Helper::initVersionTable();
   
-    $db = Factory::getDbObject();
+    $db = Helper::getDbObject();
     $result = $db->query('show tables');
     
     while($row = $result->fetch_array(MYSQLI_NUM))
     {
       $table = $row[0];
-      $query=Factory::getSqlForTableCreation($table, $db);
+      $query=Helper::getSqlForTableCreation($table, $db);
       $this->queries[] = "DROP TABLE IF EXISTS `{$table}`";
       $this->queries[] = $query;
     }
-    $vtab = Factory::get('versiontable');
+    $vtab = Helper::get('versiontable');
     $res = $db->query("SELECT MAX(rev) FROM `{$vtab}`");
     $row = $res->fetch_array(MYSQLI_NUM);
     $this->queries[] = "INSERT INTO `{$vtab}` SET rev={$row[0]}";
@@ -41,7 +41,7 @@ class schemaController extends AbstractController
       $content.="  );\n".
       "}\n".
       "\n";
-      $fname = Factory::get('savedir').'/schema.php';
+      $fname = Helper::get('savedir').'/schema.php';
       $this->askForRewrite($fname);
       file_put_contents($fname, $content);
   }

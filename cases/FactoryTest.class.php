@@ -1,24 +1,24 @@
 <?php
 
-class FactoryTest extends UnitTestCase
+class HelperTest extends UnitTestCase
 {
-  function testGetDefaultControllerFromFactory()
+  function testGetDefaultControllerFromHelper()
   {
-    $this->assertIsA(Factory::getController(), 'helpController');
-    $this->assertIsA(Factory::getController(), 'AbstractController');
+    $this->assertIsA(Helper::getController(), 'helpController');
+    $this->assertIsA(Helper::getController(), 'AbstractController');
   }
 
-  function testGetSpecifiedControllerFromFactory()
+  function testGetSpecifiedControllerFromHelper()
   {
-    $this->assertIsA(Factory::getController(array('','help')), 'helpController');
-    $this->assertIsA(Factory::getController(array('','init')), 'initController');
+    $this->assertIsA(Helper::getController(array('','help')), 'helpController');
+    $this->assertIsA(Helper::getController(array('','init')), 'initController');
 
   }
 
-  function testGetNotExistentControllerFromFactoryException()
+  function testGetNotExistentControllerFromHelperException()
   {
     try{
-      Factory::getController(array('foo','bar'));
+      Helper::getController(array('foo','bar'));
       $this->fail();
     }catch(Exception  $e)
     {

@@ -6,7 +6,7 @@ class initController extends AbstractController
 
   public function runStrategy()
   {
-    $fname = Factory::get('savedir').'/schema.php';
+    $fname = Helper::get('savedir').'/schema.php';
     if(!file_exists($fname))
     {
       echo "File: {$fname} not exists!\n";
@@ -15,7 +15,7 @@ class initController extends AbstractController
     $this->askForRewriteInformation();
     require_once $fname;
     $sc = new Schema();
-    $sc->load(Factory::getDbObject());
+    $sc->load(Helper::getDbObject());
     
   }
 

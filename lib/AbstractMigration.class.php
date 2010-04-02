@@ -17,25 +17,25 @@ abstract class AbstractMigration
   {
     foreach($this->up as $query)
     {
-      Factory::verbose('UP: '.$query);
-      if($this->db->query($query)) Factory::verbose("Ok");
-       else Factory::verbose($this->db->error);
+      Helper::verbose('UP: '.$query);
+      if($this->db->query($query)) Helper::verbose("Ok");
+       else Helper::verbose($this->db->error);
     }
-    $verT = Factory::get('versiontable');
+    $verT = Helper::get('versiontable');
     $query = "INSERT INTO `{$verT}` SET `rev`={$this->rev}";
-    Factory::verbose($query);
+    Helper::verbose($query);
     $this->db->query($query);
   }
   public function runDown()
   {
     foreach($this->down as $query)
     {
-      Factory::verbose($query);
+      Helper::verbose($query);
       $this->db->query($query);
     }
-    $verT = Factory::get('versiontable');
+    $verT = Helper::get('versiontable');
     $query = "DELETE FROM `{$verT}` WHERE `rev`={$this->rev}";
-    Factory::verbose($query);
+    Helper::verbose($query);
     $this->db->query($query);
   }
 }

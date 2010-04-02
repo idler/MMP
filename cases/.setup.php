@@ -2,8 +2,8 @@
 require_once __DIR__.'/../init.php';
 $conf = parse_ini_file(dirname(__FILE__).'/config.ini');
 
-require_once __DIR__.'/../lib/Factory.class.php';
-Factory::setConfig($conf);
+require_once __DIR__.'/../lib/Helper.class.php';
+Helper::setConfig($conf);
 
 mysql_connect($conf['host'],$conf['user'],$conf['password']);
 mysql_query("drop database if exists `".$conf['db']."`");

@@ -75,14 +75,14 @@ class dbDiff
   {
     $this->down($this->dropTable($tname));
     $this->up($this->dropTable($tname));
-    $this->up(Factory::getSqlForTableCreation($tname, $db));
+    $this->up(Helper::getSqlForTableCreation($tname, $db));
   }
   
   protected function addDropTable($tname, $db)
   {
     $this->up($this->dropTable($tname));
     $this->down($this->dropTable($tname));
-    $this->down(Factory::getSqlForTableCreation($tname, $db));
+    $this->down(Helper::getSqlForTableCreation($tname, $db));
   }
   
   protected function createDifferenceBetweenTables($tables)

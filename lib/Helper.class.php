@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/helpController.class.php';
 
-class Factory
+class Helper
 {
   static protected $config = array();
   static function setConfig($cnf)
@@ -75,7 +75,7 @@ class Factory
     $tmpdb =  self::getDbObject($config);
     register_shutdown_function(function() use($config,$tmpdb)
     {
-        Factory::verbose("database {$config['db']} droped");
+        Helper::verbose("database {$config['db']} droped");
         $tmpdb->query("drop database `{$config['db']}`");
       })
     ;

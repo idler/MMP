@@ -9,10 +9,10 @@ class createController extends AbstractController
   public function runStrategy()
   {
 
-    $db = Factory::getDbObject();
-    $tmpdb = Factory::getTmpDbObject();
+    $db = Helper::getDbObject();
+    $tmpdb = Helper::getTmpDbObject();
 
-    Factory::loadTmpDb($tmpdb);
+    Helper::loadTmpDb($tmpdb);
 
     $diff = new dbDiff($db, $tmpdb);
     $difference = $diff->getDifference();
@@ -22,12 +22,12 @@ class createController extends AbstractController
       exit(0);
     }
 
-    $version = Factory::getCurrentVersion();
-    $filename = Factory::get('savedir') . "/migration{$version}.php";
-    $content = Factory::createMigrationContent($version, $difference);
+    $version = Helper::getCurrentVersion();
+    $filename = Helper::get('savedir') . "/migration{$version}.php";
+    $content = Helper::createMigrationContent($version, $difference);
     file_put_contents($filename, $content);
-    Factory::verbose("file: {$filename} writed!");
-    $vTab = Factory::get('versiontable');
+    Helper::verbose("file: {$filename} writed!");
+    $vTab = Helper::get('versiontable');
     $db->query("INSERT INTO `{$vTab}` SET rev={$version}");
   }
 
