@@ -20,7 +20,7 @@ class migrateController extends AbstractController
     $str = implode(' ', $this->args);
 
     $target_migration = strtotime($str);
-    echo "Migrating to ".date('r',$target_migration)."\n";
+    echo "Will migrate to: ".date('r',$target_migration)."\n\n";
 
     if(false === $target_migration) throw new Exception("Time is not correct");
 
@@ -35,9 +35,10 @@ class migrateController extends AbstractController
       $migrations = array_reverse($migrations);
       
       foreach($migrations as $migration)
-      { echo "$migration\n";
+      { 
         if($migration>$revision) continue;        
         if($migration < $target_migration) break;
+        echo "Migrating to: " . date('r',$migration) . "\n";
         Helper::applyMigration($migration, $db, $direction);
       }
 
@@ -48,6 +49,7 @@ class migrateController extends AbstractController
       {
         if($migration<=$revision) continue;
         if($migration > $target_migration) break;
+        echo "Migrating to: " . date('r',$migration) . "\n";
         Helper::applyMigration($migration, $db, $direction);
       }
     }
