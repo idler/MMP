@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__.'/AbstractController.class.php';
 
 class helpController extends AbstractController
 {
