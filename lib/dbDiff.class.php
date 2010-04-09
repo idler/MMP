@@ -255,22 +255,33 @@ class dbDiff
   
   protected function addIndex($index)
   {
-    $index_string = "CREATE ";
-    if($index['type']==='FULLTEXT') $index_string .= " FULLTEXT ";
-    if($index['unique']) $index_string .= " UNIQUE ";
-    $index_string .= " INDEX `{$index['name']}` ";
-    if(in_array($index['type'], array('RTREE','BTREE','HASH',)))
-    {
-      $index_string .= " USING {$index['type']} ";
+    if($index['name'] === 'PRIMARY'){
+       $index_string = "ALTER TABLE `{$index['table']}` ADD PRIMARY KEY";
+       $fields = array();
+       foreach ($index['fields'] as $f) 
+       {
+         $len = intval($f['length']) ? "({$f['length']})" : '';
+         $fields[] = "{$f['name']}" . $len;
+       }
+       $index_string .= "(" . implode(',', $fields) . ")";
+     }else{
+       $index_string = "CREATE ";
+       if ($index['type'] === 'FULLTEXT') $index_string .= " FULLTEXT ";
+       if ($index['unique']) $index_string .= " UNIQUE ";
+       $index_string .= " INDEX `{$index['name']}` ";
+       if (in_array($index['type'], array('RTREE', 'BTREE', 'HASH', ))) 
+       {
+         $index_string .= " USING {$index['type']} ";
+       }
+       $index_string .= " on `{$index['table']}` ";
+       $fields = array();
+       foreach ($index['fields'] as $f) 
+       {
+         $len = intval($f['length']) ? "({$f['length']})" : '';
+         $fields[] = "{$f['name']}" . $len;
+       }
+       $index_string .= "(" . implode(',', $fields) . ")";
     }
-    $index_string .= " on `{$index['table']}` ";
-    $fields = array();
-    foreach($index['fields'] as $f)
-    {
-      $len = intval($f['length'])?"({$f['length']})":'';
-      $fields[] = "{$f['name']}".$len;
-    }
-    $index_string .= "(".implode(',',$fields).")";
     return $index_string;
   }
 
