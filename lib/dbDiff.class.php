@@ -5,12 +5,12 @@ class dbDiff
 
   /**
    *
-   * @var mysqli
+   * @var mysqli main database connection
    */
   protected $current;
   /**
    *
-   * @var mysqli
+   * @var mysqli temp database connection
    */
   protected $published;
   /**
@@ -21,11 +21,13 @@ class dbDiff
   
   protected function up($sql)
   {
+    if(!strlen($sql)) return;
     $this->difference['up'][] = $sql;
   }
   
   protected function down($sql)
   {
+    if(!strlen($sql)) return;
     $this->difference['down'][] = $sql;
   }
   
@@ -117,8 +119,7 @@ class dbDiff
 
       if (!$column_for_compare)
       {
-        $sql = $this->addColumn($table, $current_column);
-        $this->up($sql);
+        $this->up($this->addColumn($table, $current_column));
         $this->down($this->dropColumn($table, $current_column));
       }
       else
@@ -139,8 +140,14 @@ class dbDiff
 
       if (!$has)
       {
-        $sql = $this->addColumn($table, $published_column);
-        $this->down($sql);
+        $constraint = $this->getConstraintForColumn($this->published, $table, $published_column['Field']);
+        //echo "COLUMNS\n\n"; var_dump($constraint);
+        if(count($constraint))
+        {
+          $this->down($this->addConstraint(array('constraint'=>$constraint)));
+          $this->up($this->dropConstraint(array('constraint'=>$constraint)));
+        }
+        $this->down($this->addColumn($table, $published_column));
         $this->up($this->dropColumn($table, $published_column));
       }
     }
@@ -192,7 +199,7 @@ class dbDiff
   
   protected function createIndexDifference($table)
   {
-    $current_indexes = $this->getIndexListFromTable($table, $this->current);
+    $current_indexes   = $this->getIndexListFromTable($table, $this->current);
     $published_indexes = $this->getIndexListFromTable($table, $this->published);
 
     foreach ($current_indexes as $cur_index)
@@ -200,9 +207,12 @@ class dbDiff
       $index_for_compare = $this->checkIndexExists($cur_index, $published_indexes);
       if (!$index_for_compare)
       {
+        $this->down($this->dropConstraint($cur_index));
         $this->down($this->dropIndex($cur_index));
+        $this->up($this->dropConstraint($cur_index));
         $this->up($this->dropIndex($cur_index));
         $this->up($this->addIndex($cur_index));
+        $this->up($this->addConstraint($cur_index));
       }
       elseif($index_for_compare === $cur_index)
       {
@@ -210,10 +220,14 @@ class dbDiff
       }
       else // index exists but not identical
       {
+        $this->down($this->dropConstraint($cur_index));
         $this->down($this->dropIndex($cur_index));
         $this->down($this->addIndex($index_for_compare));
+        $this->down($this->addConstraint($index_for_compare));
+        $this->up($this->dropConstraint($cur_index));
         $this->up($this->dropIndex($cur_index));
         $this->up($this->addIndex($cur_index));
+        $this->up($this->addConstraint($cur_index));
       }
     }
   }
@@ -236,8 +250,10 @@ class dbDiff
         'name' => $row['Column_name'],
         'length' => $row['Sub_part']
       );
+      $indexes[$row['Key_name']]['constraint']  = $this->getConstraintForColumn($connection,$table,$row['Column_name']);
 
     }
+    //var_dump($indexes);
     return $indexes;
   }
   
@@ -288,6 +304,63 @@ class dbDiff
   protected function dropIndex($index)
   {
     return "DROP INDEX `{$index['name']}` on `{$index['table']}`";
+  }
+
+  protected function getConstraintForColumn(mysqli $connection,$table,$col_name)
+  {
+    $q = "select database() as dbname";
+    $res = $connection->query($q);
+    $row = $res->fetch_array(MYSQLI_ASSOC);
+    $dbname = $row['dbname'];
+    Helper::verbose("DATABASE: {$row['dbname']}");
+
+    $sql = "SELECT k.CONSTRAINT_SCHEMA,k.CONSTRAINT_NAME,k.TABLE_NAME,k.COLUMN_NAME,k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME, r.UPDATE_RULE, r.DELETE_RULE FROM information_schema.key_column_usage k LEFT JOIN information_schema.referential_constraints r ON r.CONSTRAINT_SCHEMA = k.CONSTRAINT_SCHEMA AND k.TABLE_NAME=r.TABLE_NAME AND k.REFERENCED_TABLE_NAME=r.REFERENCED_TABLE_NAME LEFT JOIN information_schema.table_constraints t ON t.CONSTRAINT_SCHEMA = r.CONSTRAINT_SCHEMA AND t.TABLE_NAME=r.TABLE_NAME WHERE k.constraint_schema='$dbname' AND t.CONSTRAINT_TYPE='FOREIGN KEY' AND k.TABLE_NAME='$table' AND k.COLUMN_NAME='$col_name'";
+    Helper::verbose($sql);
+    $res = $connection->query($sql);
+    $row = $res->fetch_array(MYSQLI_ASSOC);
+
+    if(!count($row)) return false;
+
+    $constraint = array(
+        'table'       => $table,
+        'name'       => $row['CONSTRAINT_NAME'],
+        'column'     => $row['COLUMN_NAME'],
+        'reference'  => array(
+            'table'  => $row['REFERENCED_TABLE_NAME'],
+            'column' => $row['REFERENCED_COLUMN_NAME'],
+            'update' => $row['UPDATE_RULE'],
+            'delete' => $row['DELETE_RULE'],
+        )
+    );
+    //echo "=================\n\n\n\=========";
+    //var_dump($constraint);
+    return $constraint;
+  }
+
+  protected function dropConstraint($index)
+  {
+    if(!isset($index['constraint']['column']) || !strlen($index['constraint']['column'])) return '';
+    $sql = "ALTER TABLE `{$index['constraint']['table']}` ".
+      "DROP FOREIGN KEY `{$index['constraint']['name']}` ";
+
+    //echo  "DELETE==================================\n$sql\n";
+    //var_dump($index['constraint']);
+    return $sql;
+  }
+
+  protected function addConstraint($index)
+  {
+    if(!isset($index['constraint']['column']) || !strlen($index['constraint']['column'])) return '';
+    $sql = "ALTER TABLE `{$index['constraint']['table']}` ".
+      "ADD CONSTRAINT `{$index['constraint']['name']}` ".
+      "FOREIGN KEY (`{$index['constraint']['column']}`) ".
+      "REFERENCES `{$index['constraint']['reference']['table']}` ".
+      "(`{$index['constraint']['reference']['column']}`) ".
+      "on update {$index['constraint']['reference']['update']} ".
+      "on delete {$index['constraint']['reference']['delete']} ";
+    //echo  "ADD==================================\n$sql\n\n";
+    //var_dump($index['constraint']);
+    return $sql;
   }
 
 }
