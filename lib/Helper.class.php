@@ -95,7 +95,7 @@ class Helper
 
   static function getCurrentVersion()
   {
-    return gmmktime();
+    return time();
   }
 
   static function getSqlForTableCreation($tname,$db)
