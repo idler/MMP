@@ -75,7 +75,7 @@ class Helper
     $tmpdb =  self::getDbObject($config);
     register_shutdown_function(function() use($config,$tmpdb)
     {
-        Helper::verbose("database {$config['db']} droped");
+        Helper::verbose("database {$config['db']} has been dropped");
         $tmpdb->query("drop database `{$config['db']}`");
       })
     ;
