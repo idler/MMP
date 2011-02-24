@@ -22,7 +22,7 @@ class initController extends AbstractController
   {
     $c='';
     do{
-      if($c!="\n") echo "Can I rewrite tables in database [y/n]? ";
+      if($c!="\n") echo "Can I rewrite tables in database (all data will be lost) [y/n]? ";
       $c = fread(STDIN, 1);
 
       if($c ==='Y' or $c==='y' ){

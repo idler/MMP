@@ -25,7 +25,7 @@ class createController extends AbstractController
     $filename = Helper::get('savedir') . "/migration{$version}.php";
     $content = Helper::createMigrationContent($version, $difference);
     file_put_contents($filename, $content);
-    Helper::verbose("file: {$filename} writed!");
+    Helper::verbose("file: {$filename} written!");
     $vTab = Helper::get('versiontable');
     $db->query("INSERT INTO `{$vTab}` SET rev={$version}");
   }
