@@ -8,7 +8,7 @@ class initController extends AbstractController
     $fname = Helper::get('savedir').'/schema.php';
     if(!file_exists($fname))
     {
-      echo "File: {$fname} not exists!\n";
+      echo "File: {$fname} does not exist!\n";
       exit;
     }
     $this->askForRewriteInformation();
