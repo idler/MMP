@@ -163,21 +163,21 @@ class dbDiff
   {
     $sql = "ALTER TABLE `{$table}` CHANGE " .
       " `{$column['Field']}` `{$column['Field']}` " .
-      " {$column['Type']} ";
+      addslashes($column['Type']);
     $this->addSqlExtras($sql, $column);
     return $sql;
   }
   
   protected function addColumn($table, $column)
   {
-    $sql = "ALTER TABLE `{$table}` ADD `{$column['Field']}` {$column['Type']} ";
+    $sql = "ALTER TABLE `{$table}` ADD `{$column['Field']}` " . addslashes($column['Type']);
     $this->addSqlExtras($sql, $column);
     return $sql;
   }
   
   protected function dropColumn($table, $column)
   {
-    return "ALTER TABLE `{$table}` DROP {$column['Field']}";
+    return "ALTER TABLE `{$table}` DROP `{$column['Field']}`";
   }
   
   protected function dropTable($t)
