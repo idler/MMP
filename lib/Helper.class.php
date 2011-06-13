@@ -3,10 +3,19 @@ require_once __DIR__.'/helpController.class.php';
 
 class Helper
 {
-  static protected $config = array();
+  static protected $config = array(
+    'config' => null, //path to alternate config file
+    'host' => null,
+    'user' => null,
+    'password' => null,
+    'db' => null,
+    'savedir' => null,
+    'verbose' => null,
+    'versiontable' => null
+  );
   static function setConfig($cnf)
   {
-    self::$config = $cnf;
+    self::$config = array_replace(self::$config, $cnf);
   }
 
   static function getConfig()
@@ -14,13 +23,48 @@ class Helper
     return self::$config;
   }
 
-  static function getController($args=false)
+  /**
+   * Parse command line into config options and commands with its parameters
+   *
+   * $param array $args List of arguments provided from command line
+   */
+  static function parseCommandLineArgs($args)
   {
-    if(!count(self::$config) || count($args)<2)
+    $parsed_args = array('options' => array(), 'command' => array('name' => null, 'args' => array()));
+
+    array_shift($args);
+    while($arg = each($args))
+    {
+      list($k, $a) = $arg;
+      if(preg_match('/^--([a-z\-]+)(?:=(.+))?$/i', $a, $matches))
+      {
+        if(in_array($matches[1], array_keys(self::$config)))
+          $parsed_args['options'][$matches[1]] = isset($matches[2]) ? $matches[2] : true;
+      }
+      else
+      {
+        break;
+      }
+    }
+
+    //if we didn't traverse the full array just now, move on to command parsing
+    if($arg !== false)
+      $parsed_args['command']['name'] = $arg['value'];
+
+    //consider any remaining arguments as command arguments
+    while($arg = each($args))
+      $parsed_args['command']['args'][] = $arg['value'];
+
+    return $parsed_args;
+  }
+
+  static function getController($name=null, $args=array())
+  {
+    if(empty($name) || self::$config['host'] === null)
       return new HelpController;
 
-    $ctrl = $args[1].'Controller';
-    return new $ctrl(null,$args);
+    $ctrl = $name.'Controller';
+    return new $ctrl(null, $args);
   }
 
   /**
@@ -145,7 +189,7 @@ class Helper
     $fname = self::get('savedir').'/schema.php';
     if(!file_exists($fname))
     {
-      echo "File: {$fname} not exists!\n";
+      echo "File: {$fname} does not exist!\n";
       exit;
     }
 

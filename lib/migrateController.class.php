@@ -11,10 +11,7 @@ class migrateController extends AbstractController
     $db = Helper::getDbObject();
 
 
-    if(count($this->args) < 3) $this->args[2] = 'now';
-
-    array_shift($this->args);
-    array_shift($this->args);
+    if(empty($this->args)) $this->args[] = 'now';
 
     $str = implode(' ', $this->args);
 
