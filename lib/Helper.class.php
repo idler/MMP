@@ -155,9 +155,28 @@ class Helper
   static function getDatabaseVersion(Mysqli $db)
   { 
     $tbl = self::get('versiontable');
-    $res = $db->query("SELECT max(rev) from `{$tbl}`");
+    $res = $db->query("SELECT max(rev) FROM `{$tbl}`");
     $row = $res->fetch_array(MYSQLI_NUM);
     return intval($row[0]);    
+  }
+
+  /**
+   * Get all revisions that have been applied to the database
+   *
+   * @param Mysqli $db Database instance
+   * @return array|bool List of applied revisions, False on error
+   */
+  static function getDatabaseVersions(Mysqli $db)
+  {
+    $result = array();
+    $tbl = self::get('versiontable');
+    $res = $db->query("SELECT rev FROM `{$tbl}` ORDER BY rev ASC");
+    if ($res === false) return false;
+
+    while($row = $res->fetch_array(MYSQLI_NUM))
+      $result[] = $row[0];
+
+    return $result;
   }
 
 

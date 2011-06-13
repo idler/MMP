@@ -7,7 +7,7 @@ class migrateController extends AbstractController
 
   public function runStrategy()
   {
-
+    $revision = 0;
     $db = Helper::getDbObject();
 
 
@@ -22,7 +22,11 @@ class migrateController extends AbstractController
 
     $migrations = Helper::getAllMigrations();
 
-    $revision = Helper::getDatabaseVersion($db);
+    $revisions = Helper::getDatabaseVersions($db);
+    if($revisions === false) throw new Exception('Could not access revisions table');
+
+    if(!empty($revisions))
+      $revision = max($revisions);
 
     $direction = $revision <= $target_migration ? 'Up' : 'Down';
 
@@ -31,8 +35,10 @@ class migrateController extends AbstractController
       $migrations = array_reverse($migrations);
       
       foreach($migrations as $migration)
-      { 
-        if($migration>$revision) continue;        
+      {
+        if($migration>$revision) continue;
+        //Rollback only applied revisions, skip the others
+        if(!in_array($migration, $revisions)) continue;
         if($migration < $target_migration) break;
         echo "ROLLBACK: " . date('r',$migration) . "\n";
         Helper::applyMigration($migration, $db, $direction);
@@ -43,7 +49,8 @@ class migrateController extends AbstractController
     {
       foreach($migrations as $migration)
       {
-        if($migration<=$revision) continue;
+        //Apply previously unapplied revisions to "catch up"
+        if($migration<=$revision && in_array($migration, $revisions)) continue;
         if($migration > $target_migration) break;
         echo "APPLY: " . date('r',$migration) . "\n";
         Helper::applyMigration($migration, $db, $direction);
