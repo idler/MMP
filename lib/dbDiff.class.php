@@ -41,6 +41,21 @@ class dbDiff
   {
     $current_tables = $this->getTables($this->current);
     $published_tables = $this->getTables($this->published);
+    $exclude_tables = Helper::get('exclude_tables');
+    if(!empty($exclude_tables))
+    {
+      foreach($current_tables as $k => $table)
+      {
+        if(preg_match('/' . $exclude_tables . '/i', $table))
+          unset($current_tables[$k]);
+      }
+      foreach($published_tables as $k => $table)
+      {
+        if(preg_match('/' . $exclude_tables . '/i', $table))
+          unset($published_tables[$k]);
+      }
+    }
+
     sort($current_tables);
     sort($published_tables);
     $this->createFullTableDifference($current_tables, $published_tables);
