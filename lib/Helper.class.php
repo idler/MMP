@@ -147,8 +147,8 @@ class Helper
     $tres = $db->query("SHOW CREATE TABLE `{$tname}`");
     $trow = $tres->fetch_array(MYSQLI_NUM);
     $query = preg_replace('#AUTO_INCREMENT=\S+#is', '', $trow[1]);
-    $query = str_replace("\n",' ',$query);
-    $query = str_replace("'", '\\\'', $query);
+    $query = preg_replace("#\n\s*#",' ',$query);
+    $query = addcslashes($query, '\\\''); //escape slashes and single quotes
     return $query;
   }
 
@@ -156,6 +156,7 @@ class Helper
   { 
     $tbl = self::get('versiontable');
     $res = $db->query("SELECT max(rev) FROM `{$tbl}`");
+    if($res === false) return false;
     $row = $res->fetch_array(MYSQLI_NUM);
     return intval($row[0]);    
   }

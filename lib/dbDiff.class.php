@@ -155,8 +155,8 @@ class dbDiff
   
   protected function addSqlExtras( & $sql, $column)
   {
-    if ($column['Null'] === 'NO') $sql .= " not null ";
-    if (!is_null($column['Default'])) $sql .= " default \\'{$column['Default']}\\' ";
+    if ($column['Null'] === 'NO') $sql .= " NOT NULL ";
+    if (!is_null($column['Default'])) $sql .= " DEFAULT \\'{$column['Default']}\\' ";
   }
   
   protected function changeColumn($table, $column)
@@ -303,7 +303,7 @@ class dbDiff
 
   protected function dropIndex($index)
   {
-    return "DROP INDEX `{$index['name']}` on `{$index['table']}`";
+    return "DROP INDEX `{$index['name']}` ON `{$index['table']}`";
   }
 
   protected function getConstraintForColumn(mysqli $connection,$table,$col_name)
@@ -356,8 +356,8 @@ class dbDiff
       "FOREIGN KEY (`{$index['constraint']['column']}`) ".
       "REFERENCES `{$index['constraint']['reference']['table']}` ".
       "(`{$index['constraint']['reference']['column']}`) ".
-      "on update {$index['constraint']['reference']['update']} ".
-      "on delete {$index['constraint']['reference']['delete']} ";
+      "ON UPDATE {$index['constraint']['reference']['update']} ".
+      "ON DELETE {$index['constraint']['reference']['delete']} ";
     //echo  "ADD==================================\n$sql\n\n";
     //var_dump($index['constraint']);
     return $sql;
