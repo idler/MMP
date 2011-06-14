@@ -50,7 +50,7 @@ class schemaController extends AbstractController
     if(!file_exists($fname)) return;
     $c='';
     do{
-      if($c!="\n") echo "File: {$fname} exists! Can I rewrite it [y/n]? ";
+      if($c!="\n") echo "File: {$fname} already exists! Can I rewrite it [y/n]? ";
       $c = fread(STDIN, 1);
 
       if($c ==='Y' or $c==='y' ){
