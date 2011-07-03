@@ -23,12 +23,12 @@ Available commands:
   
 Available options:
 
-  --config    Path to an alternate config.ini file that will override the default
+  --config    Path to alternate config.ini file that will override the default
   
 For migrate command you can use strtotime format
 Examples:
 *********************************************************************
-./migrate.php migrate yestarday
+./migrate.php migrate yesterday
 ./migrate.php migrate -2 hour
 ./migrate.php migrate +2 month
 ./migrate.php migrate 20 September 2001
@@ -51,11 +51,5 @@ HELP;
     }
 
     echo $output;
-/*
-    $text ="echo This is the test help";
-    printf("\%s[%sm %s\n", chr(27), 43, $text );
-    */
-
-
   }
 }
