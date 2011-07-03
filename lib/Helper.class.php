@@ -58,13 +58,29 @@ class Helper
     return $parsed_args;
   }
 
+  /**
+   * Get available controller object
+   *
+   * With no parameters supplied, returns "help" controller
+   *
+   * @param string $name Controller name
+   * @param array $args Optional controller arguments
+   * @return object Initialized controller, False if not found
+   */
   static function getController($name=null, $args=array())
   {
-    if(empty($name) || self::$config['host'] === null)
-      return new HelpController;
+    if(empty($name))
+      return new helpController;
 
-    $ctrl = $name.'Controller';
-    return new $ctrl(null, $args);
+    $ctrl = $name . 'Controller';
+    try
+    {
+      return new $ctrl(null, $args);
+    }
+    catch(Exception $e)
+    {
+      return false;
+    }
   }
 
   /**
@@ -104,11 +120,6 @@ class Helper
     return isset(self::$config[$key]) ? self::$config[$key] : false;
   }
 
-  static function verbose($string)
-  {
-    if(self::get('verbose')) echo $string,"\n";
-  }
-
   static function getTmpDbObject()
   {
     $config = self::getConfig();
@@ -119,8 +130,8 @@ class Helper
     $tmpdb =  self::getDbObject($config);
     register_shutdown_function(function() use($config,$tmpdb)
     {
-        Helper::verbose("database {$config['db']} has been dropped");
-        $tmpdb->query("drop database `{$config['db']}`");
+        Output::verbose("database {$config['db']} has been dropped");
+        $tmpdb->query("DROP DATABASE `{$config['db']}`");
       })
     ;
     return $tmpdb;

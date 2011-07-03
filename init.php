@@ -1,6 +1,8 @@
 <?php
 
-set_include_path(__DIR__.PATH_SEPARATOR.__DIR__.'/lib/');
+define('DIR_SEP', DIRECTORY_SEPARATOR);
+
+set_include_path(__DIR__ . PATH_SEPARATOR . __DIR__ . DIR_SEP . 'lib' . DIR_SEP);
 
 spl_autoload_register('mmpAutoload');
 
@@ -11,13 +13,13 @@ function mmpAutoload($class)
 
   while($path = array_shift($paths))
   {
-    $filename = $path.'/'.$class.'.class.php';
+    $filename = $path . DIR_SEP . $class . '.class.php';
     if(file_exists($filename))
     {
       require_once $filename;
       return true;
     }
   }
-  throw new Exception("# class {$class} not found \n");
+  throw new Exception("# class {$class} not found");
 }
 

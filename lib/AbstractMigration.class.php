@@ -18,25 +18,25 @@ abstract class AbstractMigration
   {
     foreach($this->up as $query)
     {
-      Helper::verbose('UP: '.$query);
-      if($this->db->query($query)) Helper::verbose("Ok");
-       else Helper::verbose($this->db->error);
+      Output::verbose('UP: '.$query);
+      if($this->db->query($query)) Output::verbose("Ok");
+       else Output::verbose($this->db->error);
     }
     $verT = Helper::get('versiontable');
     $query = "INSERT INTO `{$verT}` SET `rev`={$this->rev}";
-    Helper::verbose($query);
+    Output::verbose($query);
     $this->db->query($query);
   }
   public function runDown()
   {
     foreach($this->down as $query)
     {
-      Helper::verbose($query);
+      Output::verbose($query);
       $this->db->query($query);
     }
     $verT = Helper::get('versiontable');
     $query = "DELETE FROM `{$verT}` WHERE `rev`={$this->rev}";
-    Helper::verbose($query);
+    Output::verbose($query);
     $this->db->query($query);
   }
 }

@@ -327,10 +327,10 @@ class dbDiff
     $res = $connection->query($q);
     $row = $res->fetch_array(MYSQLI_ASSOC);
     $dbname = $row['dbname'];
-    Helper::verbose("DATABASE: {$row['dbname']}");
+    Output::verbose("DATABASE: {$row['dbname']}");
 
     $sql = "SELECT k.CONSTRAINT_SCHEMA,k.CONSTRAINT_NAME,k.TABLE_NAME,k.COLUMN_NAME,k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME, r.UPDATE_RULE, r.DELETE_RULE FROM information_schema.key_column_usage k LEFT JOIN information_schema.referential_constraints r ON r.CONSTRAINT_SCHEMA = k.CONSTRAINT_SCHEMA AND k.REFERENCED_TABLE_NAME=r.REFERENCED_TABLE_NAME LEFT JOIN information_schema.table_constraints t ON t.CONSTRAINT_SCHEMA = r.CONSTRAINT_SCHEMA WHERE k.constraint_schema='$dbname' AND t.CONSTRAINT_TYPE='FOREIGN KEY' AND k.TABLE_NAME='$table' AND r.TABLE_NAME='$table' AND t.TABLE_NAME='$table' AND k.COLUMN_NAME='$col_name'";
-    Helper::verbose($sql);
+    Output::verbose($sql);
     $res = $connection->query($sql);
     $row = $res->fetch_array(MYSQLI_ASSOC);
 

@@ -4,10 +4,10 @@ abstract class AbstractSchema {
   {
     foreach ($this->queries as $query)
     {
-      Helper::verbose($query);
+      Output::verbose($query);
       if(!$db->query($query))
       {
-        Helper::verbose("Fail\n{$query}\n{$db->error}");
+        Output::verbose("Fail\n{$query}\n{$db->error}");
       }
     }
   }
