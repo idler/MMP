@@ -3,7 +3,7 @@
 
 if (PHP_OS == 'WINNT')
 {
-  system('php.exe -f '.dirname(__FILE__).'\\tr\\bin\\limb_unit.php '.dirname(__FILE__).'\\cases\\*.php');
+  system('php -f '.dirname(__FILE__).'\\tr\\bin\\limb_unit.php '.dirname(__FILE__).'\\cases\\*.php');
 }
 else
 {
