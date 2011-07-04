@@ -3,6 +3,17 @@ require_once __DIR__.'/helpController.class.php';
 
 class Helper
 {
+  static protected $config_tpl = array(
+    'config' => array('short' => 'c', 'req_val'),
+    'host' => array('req_val'),
+    'user' => array('req_val'),
+    'password' => array('req_val'),
+    'db' => array('req_val'),
+    'savedir' => array('req_val'),
+    'verbose' => array('req_val'),
+    'versiontable' => array('req_val')
+  );
+  
   static protected $config = array(
     'config' => null, //path to alternate config file
     'host' => null,
@@ -33,27 +44,21 @@ class Helper
     $parsed_args = array('options' => array(), 'command' => array('name' => null, 'args' => array()));
 
     array_shift($args);
-    while($arg = each($args))
+    $opts = GetOpt::extractLeft($args, self::$config_tpl);
+    if($opts === false)
     {
-      list($k, $a) = $arg;
-      if(preg_match('/^--([a-z\-]+)(?:=(.+))?$/i', $a, $matches))
-      {
-        if(in_array($matches[1], array_keys(self::$config)))
-          $parsed_args['options'][$matches[1]] = isset($matches[2]) ? $matches[2] : true;
-      }
-      else
-      {
-        break;
-      }
+      Output::error('mmp: ' . reset(GetOpt::errors()));
+      exit(1);
     }
+    else
+      $parsed_args['options'] = $opts;
 
     //if we didn't traverse the full array just now, move on to command parsing
-    if($arg !== false)
-      $parsed_args['command']['name'] = $arg['value'];
+    if(!empty($args))
+      $parsed_args['command']['name'] = array_shift($args);
 
     //consider any remaining arguments as command arguments
-    while($arg = each($args))
-      $parsed_args['command']['args'][] = $arg['value'];
+    $parsed_args['command']['args'] = $args;
 
     return $parsed_args;
   }
