@@ -77,11 +77,22 @@ class GetOpt {
     return $result;
   }
   
+  /**
+   * Return list errors encountered while parsing the arguments
+   *
+   * @return array List of errors
+   */
   static function errors()
   {
     return self::$errors;
   }
   
+  /**
+   * Expand array values without custom keys into "'value' => true" pairs
+   *
+   * @param array $opts Array to process
+   * @return array Processed array
+   */
   private static function normalizeTpl($opts)
   {
     foreach($opts as &$tpl)

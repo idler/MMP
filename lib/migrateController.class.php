@@ -16,7 +16,6 @@ class migrateController extends AbstractController
     $str = implode(' ', $this->args);
 
     $target_migration = strtotime($str);
-    echo "Will migrate to: ".date('r',$target_migration)."\n\n";
 
     if(false === $target_migration) throw new Exception("Time is not correct");
 
@@ -26,7 +25,31 @@ class migrateController extends AbstractController
     if($revisions === false) throw new Exception('Could not access revisions table');
 
     if(!empty($revisions))
+    {
       $revision = max($revisions);
+    }
+    else
+    {
+      Output::error('Revision table is empty. Initial schema not applied properly?');
+      exit(1);
+    }
+    
+    $unapplied_migrations = array_diff($migrations, $revisions);
+    
+    if(empty($unapplied_migrations) && $revision == max($migrations) && $target_migration > $revision)
+    {
+      echo 'No new migrations available';
+      return;
+    }
+    elseif($revision < min($migrations) && $target_migration < $revision)
+    {
+      echo 'No older migrations available';
+      return;
+    }
+    else
+    {
+      echo "Will migrate to: " . date('r',$target_migration) . PHP_EOL . PHP_EOL;
+    }
 
     $direction = $revision <= $target_migration ? 'Up' : 'Down';
 
@@ -43,7 +66,6 @@ class migrateController extends AbstractController
         echo "ROLLBACK: " . date('r',$migration) . "\n";
         Helper::applyMigration($migration, $db, $direction);
       }
-
     }
     else
     {
