@@ -4,5 +4,5 @@ password=
 db=mmpi_test
 savedir=db
 verbose=On
-versiontable=db_version
+versiontable=db_revisions
 

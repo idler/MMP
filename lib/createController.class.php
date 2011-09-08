@@ -17,7 +17,7 @@ class createController extends AbstractController
     $difference = $diff->getDifference();
     if (!count($difference['up']) && !count($difference['down']))
     {
-      echo "Your database has no changes from last version\n";
+      echo 'Your database has no changes from last revision' . PHP_EOL;
       exit(0);
     }
 
