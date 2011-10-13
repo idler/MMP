@@ -46,12 +46,12 @@ class dbDiff
     {
       foreach($current_tables as $k => $table)
       {
-        if(preg_match('/' . $exclude_tables . '/i', $table))
+        if(preg_match($exclude_tables, $table))
           unset($current_tables[$k]);
       }
       foreach($published_tables as $k => $table)
       {
-        if(preg_match('/' . $exclude_tables . '/i', $table))
+        if(preg_match($exclude_tables, $table))
           unset($published_tables[$k]);
       }
     }
