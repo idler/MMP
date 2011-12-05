@@ -44,6 +44,11 @@ class dbDiff
     $exclude_tables = Helper::get('exclude_tables');
     if(!empty($exclude_tables))
     {
+      if($exclude_tables[0] != '/')
+      {
+        $exclude_tables = '/' . $exclude_tables . '/i';
+      }
+
       foreach($current_tables as $k => $table)
       {
         if(preg_match($exclude_tables, $table))
