@@ -1,6 +1,0 @@
-syntax: glob
-nbproject
-config.ini
-db
-cov
-tags
