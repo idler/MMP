@@ -20,6 +20,25 @@ class schemaController extends AbstractController
       $this->queries[] = "DROP TABLE IF EXISTS `{$table}`";
       $this->queries[] = $query;
     }
+
+    $result = $db->query('show procedure status where Db=DATABASE()');
+    while($row = $result->fetch_array(MYSQLI_NUM))
+    {
+      $routine = $row[1];
+      $query=Helper::getSqlForRoutineCreation($routine, $db, 'PROCEDURE');
+      $this->queries[] = "DROP PROCEDURE IF EXISTS `{$routine}`";
+      $this->queries[] = $query;
+    }
+
+    $result = $db->query('show function status where Db=DATABASE()');
+    while($row = $result->fetch_array(MYSQLI_NUM))
+    {
+        $routine = $row[1];
+        $query=Helper::getSqlForRoutineCreation($routine, $db, 'FUNCTION');
+        $this->queries[] = "DROP FUNCTION IF EXISTS `{$routine}`";
+        $this->queries[] = $query;
+    }
+
     $vtab = Helper::get('versiontable');
     $res = $db->query("SELECT MAX(rev) FROM `{$vtab}`");
     $row = $res->fetch_array(MYSQLI_NUM);
