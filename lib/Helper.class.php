@@ -168,6 +168,15 @@ class Helper
     return $query;
   }
 
+  static function getSqlForRoutineCreation($rname,$db,$type)
+  {
+    $tres = $db->query("SHOW CREATE $type `{$rname}`");
+    $trow = $tres->fetch_array(MYSQLI_NUM);
+    $query = preg_replace('#DEFINER=\S+#is', '', $trow[2]);
+    $query = addcslashes($query, '\\\''); //escape slashes and single quotes
+    return $query;
+  }
+
   static function getDatabaseVersion(Mysqli $db)
   { 
     $tbl = self::get('versiontable');
