@@ -158,6 +158,17 @@ class Helper
     return time();
   }
 
+  static function getTables($db)
+  {
+    $tables = array();
+    $result = $db->query('show tables');
+    while($row = $result->fetch_array(MYSQLI_NUM))
+    {
+      $tables[] = $row[0];
+    }
+    return $tables;
+  }
+
   static function getSqlForTableCreation($tname,$db)
   {
     $tres = $db->query("SHOW CREATE TABLE `{$tname}`");
@@ -166,6 +177,17 @@ class Helper
     $query = preg_replace("#\n\s*#",' ',$query);
     $query = addcslashes($query, '\\\''); //escape slashes and single quotes
     return $query;
+  }
+
+  static function getRoutines($db, $type)
+  {
+    $routines = array();
+    $result = $db->query("show $type status where Db=DATABASE()");
+    while($row = $result->fetch_array(MYSQLI_NUM))
+    {
+      $routines[] = $row[1];
+    }
+    return $routines;
   }
 
   static function getSqlForRoutineCreation($rname,$db,$type)

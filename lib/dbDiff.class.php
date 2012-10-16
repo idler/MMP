@@ -47,8 +47,8 @@ class dbDiff
 
   protected function getTablesDifference()
   {
-    $current_tables = $this->getTables($this->current);
-    $published_tables = $this->getTables($this->published);
+    $current_tables = Helper::getTables($this->current);
+    $published_tables = Helper::getTables($this->published);
     $exclude_tables = Helper::get('exclude_tables');
     if(!empty($exclude_tables))
     {
@@ -87,17 +87,6 @@ class dbDiff
     $drop = array_diff($published_tables, $current_tables);
     foreach ($create as $table) $this->addCreateTable($table, $this->current);
     foreach ($drop as $table) $this->addDropTable($table, $this->published);
-  }
-  
-  protected function getTables($db)
-  {
-    $res = $db->query('show tables');
-    $tables = array();
-    while ($row = $res->fetch_array(MYSQLI_NUM))
-    {
-      $tables[] = $row[0];
-    }
-    return $tables;
   }
   
   protected function addCreateTable($tname, $db)
@@ -392,8 +381,8 @@ class dbDiff
 
   protected function getRoutinesDifference($type)
   {
-    $current_routines = $this->getRoutines($this->current, $type);
-    $published_routines = $this->getRoutines($this->published, $type);
+    $current_routines = Helper::getRoutines($this->current, $type);
+    $published_routines = Helper::getRoutines($this->published, $type);
 
     sort($current_routines);
     sort($published_routines);
@@ -401,17 +390,6 @@ class dbDiff
 
     $common = array_intersect($current_routines, $published_routines);
     $this->createDifferenceBetweenRoutines($common, $type);
-  }
-
-  protected function getRoutines($db, $type)
-  {
-    $res = $db->query("show $type status where Db=DATABASE()");
-    $routines = array();
-    while ($row = $res->fetch_array(MYSQLI_ASSOC))
-    {
-      $routines[] = $row['Name'];
-    }
-    return $routines;
   }
 
   protected function createFullRoutineDifference($current_routines, $published_routines, $type)
