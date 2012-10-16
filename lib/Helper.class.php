@@ -183,6 +183,7 @@ class Helper
   {
     $routines = array();
     $result = $db->query("show $type status where Db=DATABASE()");
+    if ( $result === FALSE ) return $routines; // Don't fail if the DB doesn't support STPs
     while($row = $result->fetch_array(MYSQLI_NUM))
     {
       $routines[] = $row[1];
