@@ -1,0 +1,31 @@
+MPPTask is additional class for MPP package which allows to use it as Phing task
+
+Phing build.xml example
+
+<?xml version="1.0"?>
+
+<project name="MyTest" description="Simple phing build file" default="migrate" >
+    <target name="migrate" description="Some description">
+        <taskdef name="MMPTask" classname="MMPTask" classpath="./libs/MMP/phing" />
+        <MMPTask
+                host="localhost"
+                user="root"
+                password=""
+                db="db_test"
+                savedir="db"
+                verbose="Off"
+                versiontable="db_revisions"
+                exclude_tables="authors, books"
+                config_file="config.ini"
+                action="migrate"
+                action_options="now"
+            />
+    </target>
+</project>
+
+Options
+All of them are the same with MPP options except listed bellow.
+
+config_file    - path to the MPP configuration file
+action         - the same with MPP commands
+action_options - the same with MPP commands parameters
