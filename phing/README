@@ -24,8 +24,8 @@ Phing build.xml example:
 </project>
 
 Options:
-All of them are the same with MPP options (https://github.com/idler/MMP/wiki/Description) except listed bellow.
+All of them are the same with MMP options (https://github.com/idler/MMP/wiki/Description) except listed bellow.
 
-config_file    - path to the MPP configuration file
-action         - the same with MPP commands
-action_options - the same with MPP commands parameters
+config_file    - name of the MMP configuration file. Not required if connection options determined.
+action         - the same with MMP commands. Required.
+action_options - the same with MMP commands parameters. Depends on action.
