@@ -24,7 +24,7 @@ Phing build.xml example
 </project>
 
 Options
-All of them are the same with MPP options except listed bellow.
+All of them are the same with MPP options (https://github.com/idler/MMP/wiki/Description) except listed bellow.
 
 config_file    - path to the MPP configuration file
 action         - the same with MPP commands
