@@ -1,6 +1,6 @@
-MPPTask is additional class for MPP package which allows to use it as Phing task
+MPPTask is additional class for MPP package which allows to use it as Phing task.
 
-Phing build.xml example
+Phing build.xml example:
 
 <?xml version="1.0"?>
 
@@ -23,7 +23,7 @@ Phing build.xml example
     </target>
 </project>
 
-Options
+Options:
 All of them are the same with MPP options (https://github.com/idler/MMP/wiki/Description) except listed bellow.
 
 config_file    - path to the MPP configuration file
