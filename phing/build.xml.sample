@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<project name="test" description="Simple phing test build file" default="main" >
+    <target name="main" description="Some description">
+        <taskdef name="MMPTask" classname="MMPTask" classpath="./libs/MMP/phing" />
+        <MMPTask
+                config_file="config.ini"
+                host="localhost"
+                user="root"
+                password=""
+                db="db_test"
+                savedir="db"
+                verbose="Off"
+                versiontable="db_revisions"
+                exclude_tables=""
+                action="migrate"
+                action_options="now"
+            />
+    </target>
+</project>
