@@ -11,15 +11,28 @@ class schemaController extends AbstractController
     Helper::initVersionTable();
   
     $db = Helper::getDbObject();
-    $result = $db->query('show tables');
-    
-    while($row = $result->fetch_array(MYSQLI_NUM))
+
+    foreach( Helper::getTables($db) as $table )
     {
-      $table = $row[0];
       $query=Helper::getSqlForTableCreation($table, $db);
       $this->queries[] = "DROP TABLE IF EXISTS `{$table}`";
       $this->queries[] = $query;
     }
+
+    foreach( Helper::getRoutines($db, "PROCEDURE") as $routine )
+    {
+      $query=Helper::getSqlForRoutineCreation($routine, $db, 'PROCEDURE');
+      $this->queries[] = "DROP PROCEDURE IF EXISTS `{$routine}`";
+      $this->queries[] = $query;
+    }
+
+    foreach( Helper::getRoutines($db, "FUNCTION") as $routine )
+    {
+      $query=Helper::getSqlForRoutineCreation($routine, $db, 'FUNCTION');
+      $this->queries[] = "DROP FUNCTION IF EXISTS `{$routine}`";
+      $this->queries[] = $query;
+    }
+
     $vtab = Helper::get('versiontable');
     $res = $db->query("SELECT MAX(rev) FROM `{$vtab}`");
     $row = $res->fetch_array(MYSQLI_NUM);
