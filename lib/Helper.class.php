@@ -158,12 +158,44 @@ class Helper
     return time();
   }
 
+  static function getTables($db)
+  {
+    $tables = array();
+    $result = $db->query('show tables');
+    while($row = $result->fetch_array(MYSQLI_NUM))
+    {
+      $tables[] = $row[0];
+    }
+    return $tables;
+  }
+
   static function getSqlForTableCreation($tname,$db)
   {
     $tres = $db->query("SHOW CREATE TABLE `{$tname}`");
     $trow = $tres->fetch_array(MYSQLI_NUM);
     $query = preg_replace('#AUTO_INCREMENT=\S+#is', '', $trow[1]);
     $query = preg_replace("#\n\s*#",' ',$query);
+    $query = addcslashes($query, '\\\''); //escape slashes and single quotes
+    return $query;
+  }
+
+  static function getRoutines($db, $type)
+  {
+    $routines = array();
+    $result = $db->query("show $type status where Db=DATABASE()");
+    if ( $result === FALSE ) return $routines; // Don't fail if the DB doesn't support STPs
+    while($row = $result->fetch_array(MYSQLI_NUM))
+    {
+      $routines[] = $row[1];
+    }
+    return $routines;
+  }
+
+  static function getSqlForRoutineCreation($rname,$db,$type)
+  {
+    $tres = $db->query("SHOW CREATE $type `{$rname}`");
+    $trow = $tres->fetch_array(MYSQLI_NUM);
+    $query = preg_replace('#DEFINER=\S+#is', '', $trow[2]);
     $query = addcslashes($query, '\\\''); //escape slashes and single quotes
     return $query;
   }

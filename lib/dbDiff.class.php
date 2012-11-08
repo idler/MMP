@@ -39,8 +39,16 @@ class dbDiff
   
   public function getDifference()
   {
-    $current_tables = $this->getTables($this->current);
-    $published_tables = $this->getTables($this->published);
+    $this->getTablesDifference();
+    $this->getRoutinesDifference( 'PROCEDURE' );
+    $this->getRoutinesDifference( 'FUNCTION' );
+    return $this->difference;
+  }
+
+  protected function getTablesDifference()
+  {
+    $current_tables = Helper::getTables($this->current);
+    $published_tables = Helper::getTables($this->published);
     $exclude_tables = Helper::get('exclude_tables');
     if(!empty($exclude_tables))
     {
@@ -67,7 +75,6 @@ class dbDiff
 
     $common = array_intersect($current_tables, $published_tables);
     $this->createDifferenceBetweenTables($common);
-    return $this->difference;
   }
   
   protected function createFullTableDifference($current_tables, $published_tables)
@@ -80,17 +87,6 @@ class dbDiff
     $drop = array_diff($published_tables, $current_tables);
     foreach ($create as $table) $this->addCreateTable($table, $this->current);
     foreach ($drop as $table) $this->addDropTable($table, $this->published);
-  }
-  
-  protected function getTables($db)
-  {
-    $res = $db->query('show tables');
-    $tables = array();
-    while ($row = $res->fetch_array(MYSQLI_NUM))
-    {
-      $tables[] = $row[0];
-    }
-    return $tables;
   }
   
   protected function addCreateTable($tname, $db)
@@ -383,5 +379,57 @@ class dbDiff
     return $sql;
   }
 
-}
+  protected function getRoutinesDifference($type)
+  {
+    $current_routines = Helper::getRoutines($this->current, $type);
+    $published_routines = Helper::getRoutines($this->published, $type);
 
+    sort($current_routines);
+    sort($published_routines);
+    $this->createFullRoutineDifference($current_routines, $published_routines, $type);
+
+    $common = array_intersect($current_routines, $published_routines);
+    $this->createDifferenceBetweenRoutines($common, $type);
+  }
+
+  protected function createFullRoutineDifference($current_routines, $published_routines, $type)
+  {
+    $create = array_diff($current_routines, $published_routines);
+    $drop = array_diff($published_routines, $current_routines);
+    foreach ($create as $routine) $this->addCreateRoutine($routine, $this->current, $type);
+    foreach ($drop as $routine) $this->addDropRoutine($routine, $this->published, $type);
+  }
+
+  protected function addCreateRoutine($tname, $db, $type)
+  {
+    $this->down($this->dropRoutine($tname, $type));
+    $this->up($this->dropRoutine($tname, $type));
+    $this->up(Helper::getSqlForRoutineCreation($tname, $db, $type));
+  }
+
+  protected function addDropRoutine($tname, $db, $type)
+  {
+    $this->up($this->dropRoutine($tname, $type));
+    $this->down($this->dropTable($tname, $type));
+    $this->down(Helper::getSqlForRoutineCreation($tname, $db, $type));
+  }
+
+  protected function dropRoutine($r, $type)
+  {
+    return "DROP $type IF EXISTS `{$r}`";
+  }
+
+  protected function createDifferenceBetweenRoutines($routines, $type)
+  {
+    foreach ($routines as $rname)
+    {
+      $currentSql = Helper::getSqlForRoutineCreation($rname, $this->current, $type);
+      $publishedSql = Helper::getSqlForRoutineCreation($rname, $this->published, $type);
+      if ( $currentSql === $publishedSql ) continue;
+      $this->up($this->dropRoutine($rname, $type));
+      $this->up($currentSql);
+      $this->down($this->dropRoutine($rname, $type));
+      $this->down($publishedSql);
+    }
+  }
+}
