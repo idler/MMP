@@ -133,6 +133,7 @@ class Helper
     $db = self::getDbObject();
     $db->query("create database `{$config['db']}`");
     $tmpdb =  self::getDbObject($config);
+    $tmpdb->query("SET FOREIGN_KEY_CHECKS = 0");
     register_shutdown_function(function() use($config,$tmpdb)
     {
         Output::verbose("database {$config['db']} has been dropped");
