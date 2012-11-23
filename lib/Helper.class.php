@@ -177,7 +177,6 @@ class Helper
     $trow = $tres->fetch_array(MYSQLI_NUM);
     $query = preg_replace('#AUTO_INCREMENT=\S+#is', '', $trow[1]);
     $query = preg_replace("#\n\s*#",' ',$query);
-    $query = addcslashes($query, '\\\''); //escape slashes and single quotes
     return $query;
   }
 
@@ -198,7 +197,6 @@ class Helper
     $tres = $db->query("SHOW CREATE $type `{$rname}`");
     $trow = $tres->fetch_array(MYSQLI_NUM);
     $query = preg_replace('#DEFINER=\S+#is', '', $trow[2]);
-    $query = addcslashes($query, '\\\''); //escape slashes and single quotes
     return $query;
   }
 
@@ -309,6 +307,7 @@ class Helper
 
   static private function formatString( $indent, $suffix, $content )
   {
-    return "$ident'{$sql}'$suffix\n";
+    $content = addcslashes($content, '\\\''); //escape slashes and single quotes
+    return "$ident'{$content}'$suffix\n";
   }
 }

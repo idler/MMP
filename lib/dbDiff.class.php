@@ -172,21 +172,21 @@ class dbDiff
   protected function addSqlExtras( & $sql, $column)
   {
     if ($column['Null'] === 'NO') $sql .= " NOT NULL ";
-    if (!is_null($column['Default'])) $sql .= " DEFAULT \\'{$column['Default']}\\' ";
+    // TODO: The $column['Default'] may need to be SQL-escaped
+    if (!is_null($column['Default'])) $sql .= " DEFAULT '{$column['Default']}' ";
   }
   
   protected function changeColumn($table, $column)
   {
     $sql = "ALTER TABLE `{$table}` CHANGE " .
-      " `{$column['Field']}` `{$column['Field']}` " .
-      addslashes($column['Type']);
+      " `{$column['Field']}` `{$column['Field']}` {$column['Type']}";
     $this->addSqlExtras($sql, $column);
     return $sql;
   }
   
   protected function addColumn($table, $column)
   {
-    $sql = "ALTER TABLE `{$table}` ADD `{$column['Field']}` " . addslashes($column['Type']);
+    $sql = "ALTER TABLE `{$table}` ADD `{$column['Field']}` {$column['Type']}";
     $this->addSqlExtras($sql, $column);
     return $sql;
   }
