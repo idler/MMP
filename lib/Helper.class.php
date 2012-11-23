@@ -307,7 +307,15 @@ class Helper
 
   static private function formatString( $indent, $suffix, $content )
   {
-    $content = addcslashes($content, '\\\''); //escape slashes and single quotes
-    return "$ident'{$content}'$suffix\n";
+    $result = '';
+    $lines = explode( $content, "\n" );
+    for ( $i=0; $i<count($lines); $i++ )
+    {
+      $line = addcslashes( $lines[$i] . "\n", 'nrtvef\\$"' );
+      $linesuffix = ( $i < count($lines)-1 ) ? ' .' : $suffix;
+
+      $result .= "$indent\"$line\"$linesuffix\n";
+    }
+    return $result;
   }
 }
