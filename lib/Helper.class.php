@@ -3,6 +3,8 @@ require_once __DIR__.'/helpController.class.php';
 
 class Helper
 {
+  const TAB = "  ";
+
   static protected $config_tpl = array(
     'config' => array('short' => 'c', 'req_val'),
     'host' => array('req_val'),
@@ -274,20 +276,39 @@ class Helper
 
   static function createMigrationContent($version,$diff)
   {
-      $content = "<?php\n class Migration{$version} extends AbstractMigration\n{\n".
-      "  protected \$up = array(\n";
+      $indent = self::TAB;
+
+      $content =
+        "<?php\n" .
+        "\n" .
+        "class Migration{$version} extends AbstractMigration\n" .
+        "{\n" .
+        "${indent}protected \$up = array(\n";
+
       foreach($diff['up'] as $sql)
       {
-        $content .= "    '{$sql}',\n";
+        $content .= self::formatString("${indent}${indent}", ',', $sql);
       }
-      $content .= "  );\n  protected \$down = array(\n";
+
+      $content .=
+        "${indent});\n" .
+        "${indent}protected \$down = array(\n";
 
       foreach($diff['down'] as $sql)
       {
-        $content .= "    '{$sql}',\n";
+        $content .= self::formatString("${indent}${indent}", ',', $sql);
       }
-      $content .= "  );\n  protected \$rev = {$version};\n}\n";
+
+      $content .=
+        "${indent});\n" .
+        "${indent}protected \$rev = {$version};\n" .
+        "}\n";
 
       return $content;
+  }
+
+  static private function formatString( $indent, $suffix, $content )
+  {
+    return "$ident'{$sql}'$suffix\n";
   }
 }
