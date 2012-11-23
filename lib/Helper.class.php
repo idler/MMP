@@ -308,19 +308,45 @@ class Helper
   static private function formatString( $indent, $suffix, $content )
   {
     $result = '';
-    $lines = explode( $content, "\n" );
+    $lines = explode("\n", $content);
     for ( $i=0; $i<count($lines); $i++ )
     {
-      $line = addcslashes( $lines[$i] . "\n", 'nrtvef\\$"' );
+      $isFirst = ( $i == 0 );
+      $isLast  = ( $i >= count($lines)-1 );
+      
+      $line = self::escapeString( $lines[$i] . ($isLast ? "" : "\n" ) );
 
       // Line prefix contains concatenation operator
-      $lineprefix = ( $i == 0 ) ? '' : '. ';
+      $lineprefix = $isFirst ? '' : '. ';
 
       // Line suffix contains submitted string suffix
-      $linesuffix = ( $i >= count($lines)-1 ) ? $suffix : '';
+      $linesuffix = $isLast ? $suffix : '';
 
       $result .= $indent . $lineprefix . '"' . $line . '"' . $linesuffix . "\n";
     }
     return $result;
+  }
+
+  static private function escapeString( $string )
+  {
+    $convert = array (
+      "\\"=>"\\\\", "\n"=>"\\n", "\r"=>"\\r",
+      "\v"=>"\\v", "\e"=>"\\e", "\f"=>"\\f", "\$"=>"\\$"
+    );
+            
+    $ret = '';
+    for( $i=0; $i<strlen($string); $i++ )
+    {
+      $ch = $string[$i];
+      if ( isset( $convert[$ch] ) )
+      {
+          $ret .= $convert[$ch];
+      }
+      else
+      {
+          $ret .= $ch;
+      }
+    }
+    return $ret;
   }
 }
