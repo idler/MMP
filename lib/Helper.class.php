@@ -312,9 +312,14 @@ class Helper
     for ( $i=0; $i<count($lines); $i++ )
     {
       $line = addcslashes( $lines[$i] . "\n", 'nrtvef\\$"' );
-      $linesuffix = ( $i < count($lines)-1 ) ? ' .' : $suffix;
 
-      $result .= "$indent\"$line\"$linesuffix\n";
+      // Line prefix contains concatenation operator
+      $lineprefix = ( $i == 0 ) ? '' : '. ';
+
+      // Line suffix contains submitted string suffix
+      $linesuffix = ( $i >= count($lines)-1 ) ? $suffix : '';
+
+      $result .= $indent . $lineprefix . '"' . $line . '"' . $linesuffix . "\n";
     }
     return $result;
   }
