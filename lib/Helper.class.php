@@ -176,7 +176,7 @@ class Helper
     $tres = $db->query("SHOW CREATE TABLE `{$tname}`");
     $trow = $tres->fetch_array(MYSQLI_NUM);
     $query = preg_replace('#AUTO_INCREMENT=\S+#is', '', $trow[1]);
-    $query = preg_replace("#\n\s*#",' ',$query);
+    //$query = preg_replace("#\n\s*#",' ',$query);
     return $query;
   }
 
