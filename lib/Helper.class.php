@@ -281,25 +281,35 @@ class Helper
         "\n" .
         "class Migration{$version} extends AbstractMigration\n" .
         "{\n" .
-        "${indent}protected \$up = array(\n";
+        "${indent}protected \$up;\n" .
+        "${indent}protected \$down;\n" .
+        "${indent}protected \$rev;\n" .
+        "\n" .
+        "${indent}function __construct()\n" .
+        "${indent}{\n" .
+        "${indent}${indent}\$this->up = array(\n";
 
       foreach($diff['up'] as $sql)
       {
-        $content .= self::formatString("${indent}${indent}", ',', $sql);
+        $content .= self::formatString("${indent}${indent}${indent}", ',', $sql);
       }
 
       $content .=
-        "${indent});\n" .
-        "${indent}protected \$down = array(\n";
+        "${indent}${indent});\n" .
+        "${indent}${indent}\$this->down = array(\n";
 
       foreach($diff['down'] as $sql)
       {
-        $content .= self::formatString("${indent}${indent}", ',', $sql);
+        $content .= self::formatString("${indent}${indent}${indent}", ',', $sql);
       }
 
       $content .=
-        "${indent});\n" .
-        "${indent}protected \$rev = {$version};\n" .
+        "${indent}${indent});\n" .
+        "${indent}${indent}\$this->rev = {$version};\n" .
+        "\n" .
+        "${indent}${indent}\$args = func_get_args();\n" .
+        "${indent}${indent}call_user_func_array(array(&\$this, 'parent::__construct'), \$args);\n" .
+        "${indent}}\n" .
         "}\n";
 
       return $content;
