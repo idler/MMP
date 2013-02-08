@@ -340,7 +340,7 @@ class Helper
   static private function escapeString( $string )
   {
     $convert = array (
-      "\\"=>"\\\\", "\n"=>"\\n", "\r"=>"\\r",
+      "\\"=>"\\\\", "\n"=>"\\n", "\r"=>"\\r", "\"" => "\\\"",
       "\v"=>"\\v", "\e"=>"\\e", "\f"=>"\\f", "\$"=>"\\$"
     );
             
