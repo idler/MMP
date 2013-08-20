@@ -410,7 +410,7 @@ class dbDiff
   protected function addDropRoutine($tname, $db, $type)
   {
     $this->up($this->dropRoutine($tname, $type));
-    $this->down($this->dropTable($tname, $type));
+    $this->down($this->dropRoutine($tname, $type));
     $this->down(Helper::getSqlForRoutineCreation($tname, $db, $type));
   }
 
