@@ -283,6 +283,22 @@ class Helper
         "{\n" .
         "${indent}protected \$up;\n" .
         "${indent}protected \$down;\n" .
+        "${indent}/**\n" .
+        "${indent} * @todo Fill it whith action which should run before db modification\n" .
+        "${indent} */\n" .
+        "${indent}protected \$preup = array();\n" .
+        "${indent}/**\n" .
+        "${indent} * @todo Fill it whith action which should run after db modification\n" .
+        "${indent} */\n" .        
+        "${indent}protected \$postup  = array();\n" .
+        "${indent}/**\n" .
+        "${indent} * @todo Fill it whith action which should run before db rollback\n" .
+        "${indent} */\n" .
+        "${indent}protected \$predown  = array();\n" .
+        "${indent}/**\n" .
+        "${indent} * @todo Fill it whith action which should run after db rollback\n" .
+        "${indent} */\n" .
+        "${indent}protected \$postdown  = array();\n" .
         "${indent}protected \$rev;\n" .
         "\n" .
         "${indent}function __construct()\n" .
