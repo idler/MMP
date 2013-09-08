@@ -38,12 +38,12 @@ class migrateController extends AbstractController
     
     if(empty($unapplied_migrations) && $revision == max($migrations) && $target_migration > $revision)
     {
-      echo 'No new migrations available';
+      echo 'No new migrations available' . PHP_EOL;
       return;
     }
     elseif($revision < min($migrations) && $target_migration < $revision)
     {
-      echo 'No older migrations available';
+      echo 'No older migrations available' . PHP_EOL;
       return;
     }
     else

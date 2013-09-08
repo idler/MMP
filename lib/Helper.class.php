@@ -3,6 +3,8 @@ require_once __DIR__.'/helpController.class.php';
 
 class Helper
 {
+  const TAB = "  ";
+
   static protected $config_tpl = array(
     'config' => array('short' => 'c', 'req_val'),
     'host' => array('req_val'),
@@ -175,8 +177,7 @@ class Helper
     $tres = $db->query("SHOW CREATE TABLE `{$tname}`");
     $trow = $tres->fetch_array(MYSQLI_NUM);
     $query = preg_replace('#AUTO_INCREMENT=\S+#is', '', $trow[1]);
-    $query = preg_replace("#\n\s*#",' ',$query);
-    $query = addcslashes($query, '\\\''); //escape slashes and single quotes
+    //$query = preg_replace("#\n\s*#",' ',$query);
     return $query;
   }
 
@@ -197,7 +198,6 @@ class Helper
     $tres = $db->query("SHOW CREATE $type `{$rname}`");
     $trow = $tres->fetch_array(MYSQLI_NUM);
     $query = preg_replace('#DEFINER=\S+#is', '', $trow[2]);
-    $query = addcslashes($query, '\\\''); //escape slashes and single quotes
     return $query;
   }
 
@@ -275,20 +275,89 @@ class Helper
 
   static function createMigrationContent($version,$diff)
   {
-      $content = "<?php\n class Migration{$version} extends AbstractMigration\n{\n".
-      "  protected \$up = array(\n";
+      $indent = self::TAB;
+
+      $content =
+        "<?php\n" .
+        "\n" .
+        "class Migration{$version} extends AbstractMigration\n" .
+        "{\n" .
+        "${indent}protected \$up;\n" .
+        "${indent}protected \$down;\n" .
+        "${indent}protected \$rev;\n" .
+        "\n" .
+        "${indent}function __construct()\n" .
+        "${indent}{\n" .
+        "${indent}${indent}\$this->up = array(\n";
+
       foreach($diff['up'] as $sql)
       {
-        $content .= "    '{$sql}',\n";
+        $content .= self::formatString("${indent}${indent}${indent}", ',', $sql);
       }
-      $content .= "  );\n  protected \$down = array(\n";
+
+      $content .=
+        "${indent}${indent});\n" .
+        "${indent}${indent}\$this->down = array(\n";
 
       foreach($diff['down'] as $sql)
       {
-        $content .= "    '{$sql}',\n";
+        $content .= self::formatString("${indent}${indent}${indent}", ',', $sql);
       }
-      $content .= "  );\n  protected \$rev = {$version};\n}\n";
+
+      $content .=
+        "${indent}${indent});\n" .
+        "${indent}${indent}\$this->rev = {$version};\n" .
+        "\n" .
+        "${indent}${indent}\$args = func_get_args();\n" .
+        "${indent}${indent}call_user_func_array(array(&\$this, 'parent::__construct'), \$args);\n" .
+        "${indent}}\n" .
+        "}\n";
 
       return $content;
+  }
+
+  static private function formatString( $indent, $suffix, $content )
+  {
+    $result = '';
+    $lines = explode("\n", $content);
+    for ( $i=0; $i<count($lines); $i++ )
+    {
+      $isFirst = ( $i == 0 );
+      $isLast  = ( $i >= count($lines)-1 );
+      
+      $line = self::escapeString( $lines[$i] . ($isLast ? "" : "\n" ) );
+
+      // Line prefix contains concatenation operator
+      $lineprefix = $isFirst ? '' : '. ';
+
+      // Line suffix contains submitted string suffix
+      $linesuffix = $isLast ? $suffix : '';
+
+      $result .= $indent . $lineprefix . '"' . $line . '"' . $linesuffix . "\n";
+    }
+    return $result;
+  }
+
+  static private function escapeString( $string )
+  {
+    $convert = array (
+      "\\"=>"\\\\", "\n"=>"\\n", "\r"=>"\\r", "\"" => "\\\"",
+      "\v"=>"\\v", "\e"=>"\\e", "\f"=>"\\f", "\$"=>"\\$"
+    );
+            
+    $ret = '';
+    for( $i=0; $i<strlen($string); $i++ )
+    {
+      $ch = $string[$i];
+      if ( isset( $convert[$ch] ) )
+      {
+          $ret .= $convert[$ch];
+      }
+      else
+      {
+          $ret .= $ch;
+      }
+    }
+    return $ret;
   }
 }
