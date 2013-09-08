@@ -53,7 +53,7 @@ abstract class AbstractMigration
   public function runUp()
   {
   	foreach ($this->preup as $query) {
-      Output::verbose('UP: '.$query);
+      Output::verbose('PREUP: '.$query);
       if($this->db->query($query)) Output::verbose("Ok");
        else Output::verbose($this->db->error);
   	}
@@ -66,7 +66,7 @@ abstract class AbstractMigration
     }
     
     foreach ($this->postup as $query) {
-      Output::verbose('UP: '.$query);
+      Output::verbose('POSTUP: '.$query);
       if($this->db->query($query)) Output::verbose("Ok");
        else Output::verbose($this->db->error);
     }
@@ -83,19 +83,19 @@ abstract class AbstractMigration
   public function runDown()
   {
   	foreach ($this->predown as $query) {
-  		Output::verbose('UP: '.$query);
+  		Output::verbose('PREDOWN: '.$query);
   		if($this->db->query($query)) Output::verbose("Ok");
   		else Output::verbose($this->db->error);
   	}
   	
     foreach($this->down as $query)
     {
-      Output::verbose($query);
+      Output::verbose('DOWN:'.$query);
       $this->db->query($query);
     }
     
-    foreach ($this->postup as $query) {
-    	Output::verbose('UP: '.$query);
+    foreach ($this->postdown as $query) {
+    	Output::verbose('POSTDOWN: '.$query);
     	if($this->db->query($query)) Output::verbose("Ok");
     	else Output::verbose($this->db->error);
     }
