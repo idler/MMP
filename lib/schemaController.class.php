@@ -48,7 +48,7 @@ class schemaController extends AbstractController
       "  protected \$queries = array(\n";
       foreach($this->queries as $q)
       {
-        $content .= "    '{$q}',\n";
+        $content .= "    \"{$q}\",\n";
       }
       $content.="  );\n".
       "}\n".

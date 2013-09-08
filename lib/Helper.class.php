@@ -171,6 +171,12 @@ class Helper
     return $tables;
   }
 
+  /**
+   * 
+   * @param String $tname
+   * @param Mysqli $db
+   * @return mixed
+   */
   static function getSqlForTableCreation($tname,$db)
   {
     $tres = $db->query("SHOW CREATE TABLE `{$tname}`");
