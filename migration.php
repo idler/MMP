@@ -9,14 +9,12 @@ if(empty($cli_params['options']['config']))
 {
   $cli_params['options']['config'] = __DIR__ . DIR_SEP . 'config.ini';
 }
-
+var_dump($cli_params);
 if(file_exists($cli_params['options']['config']))
 {
   $config = parse_ini_file($cli_params['options']['config']);
   $config = array_replace($config, $cli_params['options']); //command line overrides everything
-}
-else
-{
+} elseif (!Helper::checkConfigEnough($config)) {
   Output::error('mmp: could not find config file "' . $cli_params['options']['config'] . '"');
   exit(1);
 }
