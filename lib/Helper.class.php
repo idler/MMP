@@ -64,6 +64,21 @@ class Helper
 
     return $parsed_args;
   }
+  
+  /**
+   * Checks has we enough params to run
+   * @param array $config
+   * @return boolean
+   */
+  static function checkConfigEnough($config)
+  {
+  	foreach (self::$config as $key => $value) {
+  		if ($key!='config'&&(!isset($config[$key])||is_null($config[$key]))) {
+  			return false;
+  		}
+  	}
+  	return true;
+  }
 
   /**
    * Get available controller object
