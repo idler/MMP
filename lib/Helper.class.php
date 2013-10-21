@@ -180,6 +180,7 @@ class Helper
   {
     $tables = array();
     $result = $db->query('show tables');
+    if(!$result) return array();
     while($row = $result->fetch_array(MYSQLI_NUM))
     {
       $tables[] = $row[0];
