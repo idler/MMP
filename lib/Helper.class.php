@@ -64,6 +64,21 @@ class Helper
 
     return $parsed_args;
   }
+  
+  /**
+   * Checks has we enough params to run
+   * @param array $config
+   * @return boolean
+   */
+  static function checkConfigEnough($config)
+  {
+  	foreach (self::$config as $key => $value) {
+  		if ($key!='config'&&(!isset($config[$key])||is_null($config[$key]))) {
+  			return false;
+  		}
+  	}
+  	return true;
+  }
 
   /**
    * Get available controller object
@@ -172,6 +187,12 @@ class Helper
     return $tables;
   }
 
+  /**
+   * 
+   * @param String $tname
+   * @param Mysqli $db
+   * @return mixed
+   */
   static function getSqlForTableCreation($tname,$db)
   {
     $tres = $db->query("SHOW CREATE TABLE `{$tname}`");
@@ -284,6 +305,22 @@ class Helper
         "{\n" .
         "${indent}protected \$up;\n" .
         "${indent}protected \$down;\n" .
+        "${indent}/**\n" .
+        "${indent} * @todo Fill it whith action which should run before db modification\n" .
+        "${indent} */\n" .
+        "${indent}protected \$preup = array();\n" .
+        "${indent}/**\n" .
+        "${indent} * @todo Fill it whith action which should run after db modification\n" .
+        "${indent} */\n" .        
+        "${indent}protected \$postup  = array();\n" .
+        "${indent}/**\n" .
+        "${indent} * @todo Fill it whith action which should run before db rollback\n" .
+        "${indent} */\n" .
+        "${indent}protected \$predown  = array();\n" .
+        "${indent}/**\n" .
+        "${indent} * @todo Fill it whith action which should run after db rollback\n" .
+        "${indent} */\n" .
+        "${indent}protected \$postdown  = array();\n" .
         "${indent}protected \$rev;\n" .
         "\n" .
         "${indent}function __construct()\n" .
