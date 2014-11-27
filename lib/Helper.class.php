@@ -304,29 +304,26 @@ class Helper
         "\n" .
         "class Migration{$version} extends AbstractMigration\n" .
         "{\n" .
-        "${indent}protected \$up;\n" .
-        "${indent}protected \$down;\n" .
         "${indent}/**\n" .
-        "${indent} * @todo Fill it whith action which should run before db modification\n" .
+        "${indent} * @todo Return action which should run before db modification\n" .
         "${indent} */\n" .
-        "${indent}protected \$preup = array();\n" .
+        "${indent}protected function buildPreup() { return array(); }\n" .
         "${indent}/**\n" .
-        "${indent} * @todo Fill it whith action which should run after db modification\n" .
+        "${indent} * @todo Return action which should run after db modification\n" .
         "${indent} */\n" .        
-        "${indent}protected \$postup  = array();\n" .
+        "${indent}protected function buildPostup() { return array(); }\n" .
         "${indent}/**\n" .
-        "${indent} * @todo Fill it whith action which should run before db rollback\n" .
+        "${indent} * @todo Return action which should run before db rollback\n" .
         "${indent} */\n" .
-        "${indent}protected \$predown  = array();\n" .
+        "${indent}protected function buildPredown() { return array(); }\n" .
         "${indent}/**\n" .
-        "${indent} * @todo Fill it whith action which should run after db rollback\n" .
+        "${indent} * @todo Return action which should run after db rollback\n" .
         "${indent} */\n" .
-        "${indent}protected \$postdown  = array();\n" .
-        "${indent}protected \$rev;\n" .
+        "${indent}protected function buildPostdown() { return array(); }\n" .
         "\n" .
-        "${indent}function __construct()\n" .
+        "${indent}protected function buildUp()\n" .
         "${indent}{\n" .
-        "${indent}${indent}\$this->up = array(\n";
+        "${indent}${indent}return array(\n";
 
       foreach($diff['up'] as $sql)
       {
@@ -335,7 +332,11 @@ class Helper
 
       $content .=
         "${indent}${indent});\n" .
-        "${indent}${indent}\$this->down = array(\n";
+        "${indent}}\n" .
+        "\n" .
+        "${indent}protected function buildDown()\n" .
+        "${indent}{\n" .
+        "${indent}${indent}return array(\n";
 
       foreach($diff['down'] as $sql)
       {
@@ -344,11 +345,10 @@ class Helper
 
       $content .=
         "${indent}${indent});\n" .
-        "${indent}${indent}\$this->rev = {$version};\n" .
-        "\n" .
-        "${indent}${indent}\$args = func_get_args();\n" .
-        "${indent}${indent}call_user_func_array(array(&\$this, 'parent::__construct'), \$args);\n" .
         "${indent}}\n" .
+        "\n" .
+        "${indent}protected function getRev() { return {$version}; }\n" .
+        "\n" .
         "}\n";
 
       return $content;
