@@ -354,6 +354,31 @@ class Helper
       return $content;
   }
 
+  static function createSchema($queries)
+  {
+    $indent = self::TAB;
+
+    $content =
+      "<?php\n".
+      "class Schema extends AbstractSchema\n".
+      "{\n".
+      "${indent}protected function buildQueries()\n" .
+      "${indent}{\n" .
+      "${indent}${indent}return array(\n";
+
+    foreach($queries as $q)
+    {
+      $content .= self::formatString("${indent}${indent}${indent}", ',', $q);
+    }
+
+    $content .=
+      "${indent}${indent});\n" .
+      "${indent}}\n" .
+      "}\n";
+
+    return $content;
+  }
+
   static private function formatString( $indent, $suffix, $content )
   {
     $result = '';
