@@ -1,8 +1,14 @@
 <?php
 abstract class AbstractSchema {
-  function load($db)
+
+  protected function buildQueries()
   {
-    foreach ($this->queries as $query)
+    return isset( $this->queries ) ? $this->queries : array();
+  }
+
+  public function load($db)
+  {
+    foreach ($this->buildQueries() as $query)
     {
       Output::verbose($query);
       if(!$db->query($query))
