@@ -166,7 +166,7 @@ class Helper
     $tbl = self::get('versiontable');
     $rev = self::getCurrentVersion();
     $db->query("DROP TABLE IF EXISTS `{$tbl}`");
-    $db->query("CREATE TABLE `{$tbl}` (`rev` BIGINT(20) UNSIGNED) ENGINE=MyISAM");
+    $db->query("CREATE TABLE `{$tbl}` (`rev` BIGINT(20) UNSIGNED, PRIMARY KEY(`rev`)) ENGINE=MyISAM");
     $db->query("TRUNCATE `{$tbl}`");
     $db->query("INSERT INTO `{$tbl}` VALUES({$rev})");
   }
