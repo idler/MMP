@@ -306,7 +306,7 @@ class dbDiff
        foreach ($index['fields'] as $f) 
        {
          $len = intval($f['length']) ? "({$f['length']})" : '';
-         $fields[] = "{$f['name']}" . $len;
+         $fields[] = "`{$f['name']}`" . $len;
        }
        $index_string .= "(" . implode(',', $fields) . ")";
      }else{
@@ -323,7 +323,7 @@ class dbDiff
        foreach ($index['fields'] as $f) 
        {
          $len = intval($f['length']) ? "({$f['length']})" : '';
-         $fields[] = "{$f['name']}" . $len;
+         $fields[] = "`{$f['name']}`" . $len;
        }
        $index_string .= "(" . implode(',', $fields) . ")";
     }
