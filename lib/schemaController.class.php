@@ -42,21 +42,10 @@ class schemaController extends AbstractController
 
   protected function writeInFile()
   {
-    $content = "<?php\n".
-      "class Schema extends AbstractSchema\n".
-      "{\n".
-      "  protected \$queries = array(\n";
-      foreach($this->queries as $q)
-      { 
-      	$q=str_replace('"', '\"', $q);
-        $content .= "    \"{$q}\",\n";
-      }
-      $content.="  );\n".
-      "}\n".
-      "\n";
-      $fname = Helper::get('savedir').'/schema.php';
-      $this->askForRewrite($fname);
-      file_put_contents($fname, $content);
+    $content = Helper::createSchema($this->queries);
+    $fname = Helper::get('savedir').'/schema.php';
+    $this->askForRewrite($fname);
+    file_put_contents($fname, $content);
   }
 
   protected function askForRewrite($fname)

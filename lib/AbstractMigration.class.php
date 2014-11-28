@@ -8,100 +8,121 @@ abstract class AbstractMigration
   protected $db;
 
   /**
-   * @var array
+   * Build list of sql queries for the up event
    */
-  protected $up = array();
+  protected function buildUp()
+  {
+    return isset( $this->up ) ? $this->up : array();
+  }
   
   /**
-   * Actions which runs before db structure modification 
-   * @var array
+   * Build list of sql queries for the preup event
    */
-  protected $preup = array();
+  protected function buildPreup()
+  {
+    return isset( $this->preup ) ? $this->preup : array();
+  }
   
   /**
-   * Actions which runs after db structure modification 
-   * @var array
+   * Build list of sql queries for the postup event
    */
-  protected $postup = array();
+  protected function buildPostup()
+  {
+    return isset( $this->postup ) ? $this->postup : array();
+  }
   
   /**
-   * @var array
+   * Build list of sql queries for the down event
    */
-  protected $down = array();
+  protected function buildDown()
+  {
+    return isset( $this->down ) ? $this->down : array();
+  }
   
   /**
-   * Actions which runs before db structure rollback 
-   * @var array
+   * Build list of sql queries for the predown event
    */
-  protected $predown = array();
+  protected function buildPredown()
+  {
+    return isset( $this->predown ) ? $this->predown : array();
+  }
   
   /**
-   * Actions which runs after db structure rollback 
-   * @var array
+   * Build list of sql queries for the postdown event
    */
-  protected $postdown = array();
-  protected $rev = 0;
-  
+  protected function buildPostdown()
+  {
+    return isset( $this->postdown ) ? $this->postdown : array();
+  }
+
+  /**
+   * Get current revision number
+   */
+  protected function getRev()
+  {
+    return isset( $this->rev ) ? $this->rev : 0;
+  }
+
   public function  __construct(mysqli $db)
   {
     $this->db = $db;
   }
   
   /**
-   * 
+   * Apply this migration
    */
   public function runUp()
   {
-  	foreach ($this->preup as $query) {
+    foreach ($this->buildPreup() as $query) {
       Output::verbose('PREUP: '.$query);
       if($this->db->query($query)) Output::verbose("Ok");
        else Output::verbose($this->db->error);
-  	}
+    }
   	
-    foreach($this->up as $query)
-    {
+    foreach($this->buildUp() as $query) {
       Output::verbose('UP: '.$query);
       if($this->db->query($query)) Output::verbose("Ok");
        else Output::verbose($this->db->error);
     }
     
-    foreach ($this->postup as $query) {
+    foreach ($this->buildPostup() as $query) {
       Output::verbose('POSTUP: '.$query);
       if($this->db->query($query)) Output::verbose("Ok");
        else Output::verbose($this->db->error);
     }
     
     $verT = Helper::get('versiontable');
-    $query = "INSERT INTO `{$verT}` SET `rev`={$this->rev}";
+    $rev = $this->getRev();
+    $query = "INSERT INTO `{$verT}` SET `rev`={$rev}";
     Output::verbose($query);
     $this->db->query($query);
   }
   
   /**
-   * 
+   * Revert this migration
    */
   public function runDown()
   {
-  	foreach ($this->predown as $query) {
-  		Output::verbose('PREDOWN: '.$query);
-  		if($this->db->query($query)) Output::verbose("Ok");
-  		else Output::verbose($this->db->error);
-  	}
+    foreach ($this->buildPredown() as $query) {
+      Output::verbose('PREDOWN: '.$query);
+      if($this->db->query($query)) Output::verbose("Ok");
+       else Output::verbose($this->db->error);
+    }
   	
-    foreach($this->down as $query)
-    {
+    foreach($this->buildDown() as $query) {
       Output::verbose('DOWN:'.$query);
       $this->db->query($query);
     }
     
-    foreach ($this->postdown as $query) {
-    	Output::verbose('POSTDOWN: '.$query);
-    	if($this->db->query($query)) Output::verbose("Ok");
-    	else Output::verbose($this->db->error);
+    foreach ($this->buildPostdown() as $query) {
+      Output::verbose('POSTDOWN: '.$query);
+      if($this->db->query($query)) Output::verbose("Ok");
+       else Output::verbose($this->db->error);
     }
     
     $verT = Helper::get('versiontable');
-    $query = "DELETE FROM `{$verT}` WHERE `rev`={$this->rev}";
+    $rev = $this->getRev();
+    $query = "DELETE FROM `{$verT}` WHERE `rev`={$rev}";
     Output::verbose($query);
     $this->db->query($query);
   }
