@@ -113,14 +113,14 @@ class lmbTestShellUITest extends lmbTestRunnerBase
 
   function testPerformOnlySelectedMethods()
   {
-    $foo_body  = '%class_header%'; 
+    $foo_body  = '%class_header%';
     $foo_body .= 'function testFoo(){echo "foo";}';
     $foo_body .= 'function testJunk(){echo "junk";}';
     $foo_body .= '%class_footer%';
 
     $bar_body  = '%class_header%';
     $bar_body .= 'function testBar(){echo "bar";}';
-    $bar_body .= 'function testJunk(){echo "junk";}'; 
+    $bar_body .= 'function testJunk(){echo "junk";}';
     $bar_body .= '%class_footer%';
 
     $foo = $this->_createTestCase($foo_file = LIMB_VAR_DIR . '/cases/foo_test.php', $foo_body);
@@ -159,6 +159,20 @@ class lmbTestShellUITest extends lmbTestRunnerBase
 
     $this->assertPattern("~$c1=hey~", $screen);
     $this->assertPattern("~$c2=wow~", $screen);
+  }
+
+  function testExceptionIsntShownTwice()
+  {
+    $this->_createTestCaseThrowingException($f = LIMB_VAR_DIR . '/cases/foo_test.php');
+    $this->_execScript($f, $screen);
+    $this->assertTrue(strpos($screen, 'Exception 1!') === strrpos($screen, 'Exception 1!'), 'Exception is shown twice!');
+  }
+
+  function testExceptionLineWhenThrownFromTest()
+  {
+    $this->_createTestCaseThrowingException($f = LIMB_VAR_DIR . '/cases/foo_test.php');
+    $this->_execScript($f, $screen);
+    $this->assertPattern("~\[EXP\].*foo_test.php:\d+$~m", $screen);
   }
 
   function testCoverageSummaryReporter()

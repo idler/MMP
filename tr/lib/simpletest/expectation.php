@@ -3,7 +3,7 @@
  *    base include file for SimpleTest
  *    @package    SimpleTest
  *    @subpackage    UnitTester
- *    @version    $Id: expectation.php 7271 2008-12-03 19:59:30Z idler $
+ *    @version    $Id: expectation.php 8093 2010-01-23 08:09:37Z korchasa $
  */
 
 /**#@+
@@ -75,7 +75,7 @@ class SimpleExpectation {
      */
     function &_getDumper() {
         if (! $this->_dumper) {
-            $dumper = &new SimpleDumper();
+            $dumper = new SimpleDumper();
             return $dumper;
         }
         return $this->_dumper;

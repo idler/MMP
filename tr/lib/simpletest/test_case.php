@@ -3,7 +3,7 @@
  *  Base include file for SimpleTest
  *  @package    SimpleTest
  *  @subpackage UnitTester
- *  @version    $Id: test_case.php 7271 2008-12-03 19:59:30Z idler $
+ *  @version    $Id: test_case.php 8093 2010-01-23 08:09:37Z korchasa $
  */
 
 /**#@+
@@ -108,9 +108,9 @@ class SimpleTestCase {
      *    @access public
      */
     function &createInvoker() {
-        $invoker = &new SimpleErrorTrappingInvoker(new SimpleInvoker($this));
+        $invoker = new SimpleErrorTrappingInvoker(new SimpleInvoker($this));
         if (version_compare(phpversion(), '5') >= 0) {
-            $invoker = &new SimpleExceptionTrappingInvoker($invoker);
+            $invoker = new SimpleExceptionTrappingInvoker($invoker);
         }
         return $invoker;
     }
@@ -471,11 +471,11 @@ class SimpleFileLoader {
      */
     function &createSuiteFromClasses($title, $classes) {
         if (count($classes) == 0) {
-            $suite = &new BadTestSuite($title, "No runnable test cases in [$title]");
+            $suite = new BadTestSuite($title, "No runnable test cases in [$title]");
             return $suite;
         }
         SimpleTest::ignoreParentsIfIgnored($classes);
-        $suite = &new TestSuite($title);
+        $suite = new TestSuite($title);
         foreach ($classes as $class) {
             if (! SimpleTest::isIgnored($class)) {
                 $suite->addTestClass($class);
@@ -525,8 +525,8 @@ class TestSuite {
     /**
      *    @deprecated
      */
-    function addTestCase(&$test_case) {
-        $this->_test_cases[] = &$test_case;
+    function addTestCase($test_case) {
+        $this->_test_cases[] = $test_case;
     }
 
     /**
@@ -534,7 +534,7 @@ class TestSuite {
      */
     function addTestClass($class) {
         if (TestSuite::getBaseTestCase($class) == 'testsuite') {
-            $this->_test_cases[] = &new $class();
+            $this->_test_cases[] = new $class();
         } else {
             $this->_test_cases[] = $class;
         }
@@ -550,9 +550,9 @@ class TestSuite {
      */
     function add(&$test_case) {
         if (! is_string($test_case)) {
-            $this->_test_cases[] = &$test_case;
+            $this->_test_cases[] = $test_case;
         } elseif (TestSuite::getBaseTestCase($class) == 'testsuite') {
-            $this->_test_cases[] = &new $class();
+            $this->_test_cases[] = new $class();
         } else {
             $this->_test_cases[] = $class;
         }
@@ -636,7 +636,7 @@ class TestSuite {
      *    @access public
      *    @static
      */
-    function getBaseTestCase($class) {
+    static function getBaseTestCase($class) {
         while ($class = get_parent_class($class)) {
             $class = strtolower($class);
             if ($class == 'simpletestcase' || $class == 'testsuite') {
