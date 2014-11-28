@@ -240,10 +240,23 @@ class dbDiff
         $this->down($this->dropIndex($cur_index));
         $this->down($this->addIndex($index_for_compare));
         $this->down($this->addConstraint($index_for_compare));
-        $this->up($this->dropConstraint($cur_index));
-        $this->up($this->dropIndex($cur_index));
+        $this->up($this->dropConstraint($index_for_compare));
+        $this->up($this->dropIndex($index_for_compare));
         $this->up($this->addIndex($cur_index));
         $this->up($this->addConstraint($cur_index));
+      }
+    }
+
+    foreach ($published_indexes as $pub_index)
+    {
+      if ($this->checkIndexExists($pub_index, $current_indexes) === false )
+      {
+        $this->down($this->dropConstraint($pub_index));
+        $this->down($this->dropIndex($pub_index));
+        $this->down($this->addIndex($pub_index));
+        $this->down($this->addConstraint($pub_index));
+        $this->up($this->dropConstraint($pub_index));
+        $this->up($this->dropIndex($pub_index));
       }
     }
   }
