@@ -107,7 +107,7 @@ class SimpleTestCompatibility {
      *    @access public
      *    @static
      */
-    function isReference(&$first, &$second) {
+    static function isReference(&$first, &$second) {
         if (version_compare(phpversion(), '5', '>=') && is_object($first)) {
             return ($first === $second);
         }
