@@ -171,9 +171,25 @@ class dbDiff
   
   protected function addSqlExtras( & $sql, $column)
   {
-    if ($column['Null'] === 'NO') $sql .= " NOT NULL ";
-    // TODO: The $column['Default'] may need to be SQL-escaped
-    if (!is_null($column['Default'])) $sql .= " DEFAULT '{$column['Default']}' ";
+    if ($column['Null'] === 'NO')
+    {
+      $sql .= " NOT NULL";
+    }
+    
+    if (!is_null($column['Default']))
+    {
+      if ( preg_match( '/^bit\(/i', $column['Type'] ) )
+      {
+        // BIT columns use format b'x' - so we can't wrap those
+        $default = $column['Default'];
+      }
+      else
+      {
+        $default = "'" . $this->current->real_escape_string( $column['Default'] ) . "'";
+      }
+    
+      $sql .= " DEFAULT $default";
+    }
   }
   
   protected function changeColumn($table, $column)
