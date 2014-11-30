@@ -234,7 +234,7 @@ class SimpleErrorQueue {
      *    @access public
      *    @static
      */
-    function getSeverityAsString($severity) {
+    static function getSeverityAsString($severity) {
         static $map = array(
                 E_STRICT => 'E_STRICT',
                 E_ERROR => 'E_ERROR',

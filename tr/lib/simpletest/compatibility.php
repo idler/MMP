@@ -107,7 +107,7 @@ class SimpleTestCompatibility {
      *    @access public
      *    @static
      */
-    function isReference(&$first, &$second) {
+    static function isReference(&$first, &$second) {
         if (version_compare(phpversion(), '5', '>=') && is_object($first)) {
             return ($first === $second);
         }
@@ -134,7 +134,7 @@ class SimpleTestCompatibility {
      *    @access public
      *    @static
      */
-    function isA($object, $class) {
+    static function isA($object, $class) {
         if (version_compare(phpversion(), '5') >= 0) {
             if (! class_exists($class, false)) {
                 if (function_exists('interface_exists')) {

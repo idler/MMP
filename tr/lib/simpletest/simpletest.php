@@ -3,7 +3,7 @@
  *  Global state for SimpleTest and kicker script in future versions.
  *  @package    SimpleTest
  *  @subpackage UnitTester
- *  @version    $Id: simpletest.php 7198 2008-11-01 11:57:17Z korchasa $
+ *  @version    $Id: simpletest.php 8093 2010-01-23 08:09:37Z korchasa $
  */
 
 /**#@+
@@ -87,7 +87,7 @@ class SimpleTest {
      *   @access public
      *   @see preferred()
      */
-    function prefer(&$object) {
+    static function prefer(&$object) {
         $registry = &SimpleTest::_getRegistry();
         $registry['Preferred'][] = &$object;
     }
@@ -102,7 +102,7 @@ class SimpleTest {
      *   @return array|object|null
      *   @see prefer()
      */
-    function &preferred($classes) {
+    static function &preferred($classes) {
         if (! is_array($classes)) {
             $classes = array($classes);
         }
@@ -202,7 +202,7 @@ class SimpleTest {
      *    @access private
      *    @static
      */
-    function &_getRegistry() {
+    static function &_getRegistry() {
         static $registry = false;
         if (! $registry) {
             $registry = SimpleTest::_getDefaults();
@@ -217,7 +217,7 @@ class SimpleTest {
      *    @access public
      *    @static
      */
-    function &getContext() {
+    static function &getContext() {
         static $context = false;
         if (! $context) {
             $context = new SimpleTestContext();
@@ -231,7 +231,7 @@ class SimpleTest {
      *    @access private
      *    @static
      */
-    function _getDefaults() {
+    static function _getDefaults() {
         return array(
                 'StubBaseClass' => 'SimpleStub',
                 'MockBaseClass' => 'SimpleMock',
@@ -314,7 +314,7 @@ class SimpleTestContext {
      */
     function &get($resource) {
         if (! isset($this->_resources[$resource])) {
-            $this->_resources[$resource] = &new $resource();
+            $this->_resources[$resource] = new $resource();
         }
         return $this->_resources[$resource];
     }

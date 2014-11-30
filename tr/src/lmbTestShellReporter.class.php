@@ -2,16 +2,16 @@
 /*
  * Limb PHP Framework
  *
- * @link http://limb-project.com 
+ * @link http://limb-project.com
  * @copyright  Copyright &copy; 2004-2009 BIT(http://bit-creative.com)
- * @license    LGPL http://www.gnu.org/copyleft/lesser.html 
+ * @license    LGPL http://www.gnu.org/copyleft/lesser.html
  */
 
 /**
  * class lmbTestShellReporter.
  *
  * @package tests_runner
- * @version $Id: lmbTestShellReporter.class.php 7681 2009-03-04 05:58:40Z pachanga $
+ * @version $Id: lmbTestShellReporter.class.php 8184 2010-04-28 07:40:35Z conf $
  */
 class lmbTestShellReporter extends TextReporter
 {
@@ -68,12 +68,12 @@ class lmbTestShellReporter extends TextReporter
     parent :: paintSkip($message);
   }
 
-  function paintHeader($test_name) 
+  function paintHeader($test_name)
   {
     //don't show any header since it's shown in paintGroupStart
   }
 
-  function paintFooter($test_name) 
+  function paintFooter($test_name)
   {
     parent :: paintFooter($test_name);
 
@@ -89,35 +89,26 @@ class lmbTestShellReporter extends TextReporter
     }
   }
 
-  function paintFail($message) 
+  function paintFail($message)
   {
     parent :: paintFail($message);
     $this->failed_tests[] = '[FLR] ' . $this->_extractErrorFileAndLine($message);
   }
 
-  function paintError($message) 
+  function paintError($message)
   {
     parent :: paintError($message);
     $this->failed_tests[] = '[ERR] ' . $this->_extractErrorFileAndLine($message);
   }
 
-  function paintException($exception) 
+  function paintException($exception)
   {
     parent::paintException($exception);
-    $message = 'Unexpected exception of type [' . get_class($exception) .
-            '] with message ['. $exception->getMessage() .
-            '] in ['. $exception->getFile() .
-            ' line ' . $exception->getLine() . ']';
-    print "Exception " . $this->getExceptionCount() . "!\n$message\n";
-    $breadcrumb = $this->getTestList();
-    array_shift($breadcrumb);
-    print "\tin " . implode("\n\tin ", array_reverse($breadcrumb));
-    print "\n";
     print "Exception full message:\n";
     print $exception->__toString();
 
     $this->failed_tests[] = '[EXP] ' . $this->_extractExceptionFileAndLine($exception);
-  }  
+  }
 
   protected function _extractExceptionFileAndLine($e)
   {
@@ -128,9 +119,12 @@ class lmbTestShellReporter extends TextReporter
     $ref = new ReflectionClass($context->getTest());
     $test_file = $ref->getFileName();
 
+    if ($e->getFile() == $test_file)
+      return $e->getFile() . ':' . $e->getLine();
+
     foreach($e->getTrace() as $item)
     {
-      if($item['file'] == $test_file)
+      if(isset($item['file']) && $item['file'] == $test_file)
         return $item['file'] . ':' . $item['line'];
     }
     return '???:???';
