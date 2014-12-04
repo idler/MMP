@@ -18,7 +18,7 @@ class createController extends AbstractController
     if (!count($difference['up']) && !count($difference['down']))
     {
       echo 'Your database has no changes from last revision' . PHP_EOL;
-      exit(0);
+      return false;
     }
 
     $version = Helper::getCurrentVersion();
@@ -28,6 +28,7 @@ class createController extends AbstractController
     Output::verbose("file: {$filename} written!");
     $vTab = Helper::get('versiontable');
     $db->query("INSERT INTO `{$vTab}` SET rev={$version}");
+    return true;
   }
 
 }
