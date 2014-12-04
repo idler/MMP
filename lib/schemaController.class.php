@@ -9,7 +9,7 @@ class schemaController extends AbstractController
   {
     Helper::initDirForSavedMigrations();
     Helper::initVersionTable();
-  
+
     $db = Helper::getDbObject();
 
     foreach( Helper::getTables($db) as $table )
@@ -37,20 +37,22 @@ class schemaController extends AbstractController
     $res = $db->query("SELECT MAX(rev) FROM `{$vtab}`");
     $row = $res->fetch_array(MYSQLI_NUM);
     $this->queries[] = "INSERT INTO `{$vtab}` SET rev={$row[0]}";
-    $this->writeInFile();
+    return $this->writeInFile();
   }
 
   protected function writeInFile()
   {
     $content = Helper::createSchema($this->queries);
     $fname = Helper::get('savedir').'/schema.php';
-    $this->askForRewrite($fname);
-    file_put_contents($fname, $content);
+    if ( !$this->askForRewrite($fname) ) return false;
+    return file_put_contents($fname, $content);
   }
 
   protected function askForRewrite($fname)
   {
-    if(!file_exists($fname)) return;
+    if(!file_exists($fname)) return true;
+    if(intval(Helper::get("forceyes"))) return true;
+    if(intval(Helper::get("noninteractive"))) return false;
     $c='';
     do{
       if($c!="\n") echo "File: {$fname} already exists! Can I rewrite it [y/n]? ";
@@ -60,7 +62,8 @@ class schemaController extends AbstractController
         return;
       }
       if($c ==='N' or $c==='n' ){
-        echo "\nExit without saving\n"; exit;
+        echo "\nExit without saving\n";
+        return false;
       }
 
     }while(true);
