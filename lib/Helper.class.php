@@ -16,6 +16,7 @@ class Helper
     'versiontable' => array('req_val'),
     'forceyes' => array('opt_val'),
     'noninteractive' => array('opt_val'),
+    'noprepost' => array('opt_val'),
   );
   
   static protected $config = array(
@@ -29,6 +30,7 @@ class Helper
     'versiontable' => null,
     'forceyes' => false,
     'noninteractive' => false,
+    'noprepost' => false,
   );
   static function setConfig($cnf)
   {
@@ -307,7 +309,11 @@ class Helper
         "<?php\n" .
         "\n" .
         "class Migration{$version} extends AbstractMigration\n" .
-        "{\n" .
+        "{\n";
+
+      if ( !intval(Helper::get("noprepost")) )
+      {
+        $content .=
         "${indent}/**\n" .
         "${indent} * @todo Return action which should run before db modification\n" .
         "${indent} */\n" .
@@ -324,7 +330,10 @@ class Helper
         "${indent} * @todo Return action which should run after db rollback\n" .
         "${indent} */\n" .
         "${indent}protected function buildPostdown() { return array(); }\n" .
-        "\n" .
+        "\n";
+      }
+
+      $content .=
         "${indent}protected function buildUp()\n" .
         "${indent}{\n" .
         "${indent}${indent}return array(\n";
