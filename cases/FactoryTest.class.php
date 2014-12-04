@@ -2,20 +2,20 @@
 
 class HelperTest extends UnitTestCase
 {
-  function testGetDefaultControllerFromHelper()
+  public function testGetDefaultControllerFromHelper()
   {
     $this->assertIsA(Helper::getController(), 'helpController');
     $this->assertIsA(Helper::getController(), 'AbstractController');
   }
 
-  function testGetSpecifiedControllerFromHelper()
+  public function testGetSpecifiedControllerFromHelper()
   {
     $this->assertIsA(Helper::getController('help'), 'helpController');
     $this->assertIsA(Helper::getController('init'), 'initController');
 
   }
 
-  function testGetNotExistentControllerFromHelperException()
+  public function testGetNotExistentControllerFromHelperException()
   {
     if(Helper::getController('foo', array('bar')) !== false)
       $this->fail();

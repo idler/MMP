@@ -1,20 +1,20 @@
 <?php
 class connectionTest extends UnitTestCase
 {
-  function testConnectionFromHelper()
+  public function testConnectionFromHelper()
   {
     $db = Helper::getDbObject();
     $this->assertTrue($db->ping());
   }
 
-  function testDefaultConnectionsIsSame()
+  public function testDefaultConnectionsIsSame()
   {
     $db1 = Helper::getDbObject();
     $db2 = Helper::getDbObject();
     $this->assertReference($db1, $db2);
   }
 
-  function testConnectionWithInsertedAndDefaultConfigsAreNotSame()
+  public function testConnectionWithInsertedAndDefaultConfigsAreNotSame()
   {
     $db1 = Helper::getDbObject();
     $db2 = Helper::getDbObject(Helper::getConfig());
