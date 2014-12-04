@@ -13,7 +13,9 @@ class Helper
     'db' => array('req_val'),
     'savedir' => array('req_val'),
     'verbose' => array('req_val'),
-    'versiontable' => array('req_val')
+    'versiontable' => array('req_val'),
+    'forceyes' => array('opt_val'),
+    'noninteractive' => array('opt_val'),
   );
   
   static protected $config = array(
@@ -24,7 +26,9 @@ class Helper
     'db' => null,
     'savedir' => null,
     'verbose' => null,
-    'versiontable' => null
+    'versiontable' => null,
+    'forceyes' => false,
+    'noninteractive' => false,
   );
   static function setConfig($cnf)
   {

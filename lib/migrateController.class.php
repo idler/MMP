@@ -31,7 +31,7 @@ class migrateController extends AbstractController
     else
     {
       Output::error('Revision table is empty. Initial schema not applied properly?');
-      exit(1);
+      return false;
     }
     
     $unapplied_migrations = array_diff($migrations, $revisions);
@@ -39,12 +39,12 @@ class migrateController extends AbstractController
     if(empty($unapplied_migrations) && $revision == max($migrations) && $target_migration > $revision)
     {
       echo 'No new migrations available' . PHP_EOL;
-      return;
+      return true;
     }
     elseif($revision < min($migrations) && $target_migration < $revision)
     {
       echo 'No older migrations available' . PHP_EOL;
-      return;
+      return true;
     }
     else
     {

@@ -20,6 +20,9 @@ class initController extends AbstractController
 
   public function askForRewriteInformation()
   {
+    if(intval(Helper::get("forceyes"))) return;
+    if(intval(Helper::get("noninteractive"))) exit;
+
     $c='';
     do{
       if($c!="\n") echo "Can I rewrite tables in database (all data will be lost) [y/n]? ";
