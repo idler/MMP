@@ -18,7 +18,7 @@ class Helper
     'noninteractive' => array('opt_val'),
     'noprepost' => array('opt_val'),
   );
-  
+
   static protected $config = array(
     'config' => null, //path to alternate config file
     'host' => null,
@@ -70,20 +70,19 @@ class Helper
 
     return $parsed_args;
   }
-  
+
   /**
    * Checks has we enough params to run
-   * @param array $config
    * @return boolean
    */
-  static function checkConfigEnough($config)
+  static function checkConfigEnough()
   {
-  	foreach (self::$config as $key => $value) {
-  		if ($key!='config'&&(!isset($config[$key])||is_null($config[$key]))) {
-  			return false;
-  		}
-  	}
-  	return true;
+    foreach( self::$config as $key => $value ) {
+      if ( $key != 'config' && is_null($value) ) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -195,7 +194,7 @@ class Helper
   }
 
   /**
-   * 
+   *
    * @param String $tname
    * @param Mysqli $db
    * @return mixed
@@ -230,12 +229,12 @@ class Helper
   }
 
   static function getDatabaseVersion(Mysqli $db)
-  { 
+  {
     $tbl = self::get('versiontable');
     $res = $db->query("SELECT max(rev) FROM `{$tbl}`");
     if($res === false) return false;
     $row = $res->fetch_array(MYSQLI_NUM);
-    return intval($row[0]);    
+    return intval($row[0]);
   }
 
   /**
@@ -280,7 +279,7 @@ class Helper
     sort($result,SORT_NUMERIC);
     return $result;
   }
-  
+
   static function loadTmpDb($db)
   {
     $fname = self::get('savedir').'/schema.php';
@@ -320,7 +319,7 @@ class Helper
         "${indent}protected function buildPreup() { return array(); }\n" .
         "${indent}/**\n" .
         "${indent} * @todo Return action which should run after db modification\n" .
-        "${indent} */\n" .        
+        "${indent} */\n" .
         "${indent}protected function buildPostup() { return array(); }\n" .
         "${indent}/**\n" .
         "${indent} * @todo Return action which should run before db rollback\n" .
@@ -400,7 +399,7 @@ class Helper
     {
       $isFirst = ( $i == 0 );
       $isLast  = ( $i >= count($lines)-1 );
-      
+
       $line = self::escapeString( $lines[$i] . ($isLast ? "" : "\n" ) );
 
       // Line prefix contains concatenation operator
@@ -420,7 +419,7 @@ class Helper
       "\\"=>"\\\\", "\n"=>"\\n", "\r"=>"\\r", "\"" => "\\\"",
       "\v"=>"\\v", "\e"=>"\\e", "\f"=>"\\f", "\$"=>"\\$"
     );
-            
+
     $ret = '';
     for( $i=0; $i<strlen($string); $i++ )
     {
