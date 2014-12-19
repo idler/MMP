@@ -15,12 +15,12 @@ if(file_exists($cli_params['options']['config']))
   $config = parse_ini_file($cli_params['options']['config']);
 }
 $config = array_replace($config, $cli_params['options']); //command line overrides everything
-if (!Helper::checkConfigEnough($config)) {
+
+Helper::setConfig($config);
+if (!Helper::checkConfigEnough()) {
   Output::error('mmp: could not find config file "' . $cli_params['options']['config'] . '"');
   exit(1);
 }
-
-Helper::setConfig($config);
 
 $controller = Helper::getController($cli_params['command']['name'], $cli_params['command']['args']);
 if($controller !== false)
