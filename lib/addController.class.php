@@ -7,8 +7,9 @@
  */
 class addController extends AbstractController
 {
-	public function runStrategy()
-	{
-		Helper::initVersionTable();
-	}
+
+    public function runStrategy ()
+    {
+        Helper::initVersionTable();
+    }
 }
