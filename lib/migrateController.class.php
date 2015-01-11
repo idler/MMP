@@ -36,7 +36,7 @@ class migrateController extends AbstractController
     
     $unapplied_migrations = array_diff($migrations, $revisions);
     
-    if(empty($unapplied_migrations) && $revision == max($migrations) && $target_migration > $revision)
+    if(empty($migrations)||(empty($unapplied_migrations) && $revision == max($migrations) && $target_migration > $revision))
     {
       echo 'No new migrations available' . PHP_EOL;
       return true;
