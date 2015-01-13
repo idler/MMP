@@ -1,4 +1,0 @@
-#!@PHP-BIN@
-<?php
-require 'limb/tests_runner/bin/limb_unit.php';
-?>
