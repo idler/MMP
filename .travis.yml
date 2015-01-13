@@ -7,7 +7,7 @@ php:
   - 5.6
 
 before_script:
-  - cp config.ini.sample cases/config.ini
+  - cp config.ini.sample tests/config.ini
 
 script:
-  - phpunit --bootstrap ./cases/bootstrap.php ./cases/
+  - phpunit --bootstrap ./tests/bootstrap.php ./tests/
