@@ -12,7 +12,7 @@ class dbTestCase extends PHPUnit_Framework_TestCase
     $conf = parse_ini_file(__DIR__.'/config.ini');
     if ( $conf === FALSE )
     {
-      die("Missing valid config.ini file in the unit tests directory");
+      $this->fail("Missing valid config.ini file in the unit tests directory");
     }
 
     // Tweak the config a bit
@@ -31,7 +31,7 @@ class dbTestCase extends PHPUnit_Framework_TestCase
     $conn = @Helper::getDbObject();
     if ( $conn->connect_error )
     {
-      die( "Couldn't connect to database ({$conn->connect_errno}) {$conn->connect_error}" );
+      $this->fail( "Couldn't connect to database ({$conn->connect_errno}) {$conn->connect_error}" );
     }
 
     // Create simple clean DB environment
