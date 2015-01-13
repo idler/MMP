@@ -10,4 +10,4 @@ before_script:
   - cp config.ini.sample cases/config.ini
 
 script:
-  - phpunit ./cases/
+  - phpunit --bootstrap ./cases/bootstrap.php ./cases/

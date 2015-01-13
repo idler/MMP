@@ -1,5 +1,6 @@
 <?php
-class connectionTest extends UnitTestCase
+
+class ConnectionTest extends DbTestCase
 {
   public function testConnectionFromHelper()
   {
@@ -11,7 +12,7 @@ class connectionTest extends UnitTestCase
   {
     $db1 = Helper::getDbObject();
     $db2 = Helper::getDbObject();
-    $this->assertReference($db1, $db2);
+    $this->assertSame($db1, $db2);
   }
 
   public function testConnectionWithInsertedAndDefaultConfigsAreNotSame()
@@ -19,10 +20,10 @@ class connectionTest extends UnitTestCase
     $db1 = Helper::getDbObject();
     $db2 = Helper::getDbObject(Helper::getConfig());
     $db3 = Helper::getDbObject();
-    $this->assertReference($db1, $db3);
-    $this->assertEqual($db1->thread_id,$db3->thread_id);
-    $this->assertNotEqual($db1->thread_id, $db2->thread_id);
-    $this->assertNotEqual($db3->thread_id, $db2->thread_id);
+    $this->assertSame($db1, $db3);
+    $this->assertEquals($db1->thread_id,$db3->thread_id);
+    $this->assertNotEquals($db1->thread_id, $db2->thread_id);
+    $this->assertNotEquals($db3->thread_id, $db2->thread_id);
   }
 
 }

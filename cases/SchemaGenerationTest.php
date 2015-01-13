@@ -1,6 +1,6 @@
 <?php
 
-class schemaGenerationTest extends dbTestCase
+class SchemaGenerationTest extends dbTestCase
 {
   public function testSimpleSchemaCreation()
   {
@@ -14,5 +14,5 @@ class schemaGenerationTest extends dbTestCase
     $this->query("alter table test add column newCol INT");
     $this->buildMigration();
     $this->assertNoMigration();
-  }  
+  }
 }
