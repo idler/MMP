@@ -1,4 +1,4 @@
-Things, that should be done soon.
+Priority tasks we'd like to work on soon.
 ============
 
  - Switch test suite to PHPUNIT
