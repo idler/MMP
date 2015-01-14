@@ -22,8 +22,9 @@ class dbTestCase extends PHPUnit_Framework_TestCase
     // Setup the system
     Helper::setConfig($conf);
 
-    // Test DB connection
-    $conn = @Helper::getDbObject();
+    // Test DB connection,
+    // Note: we don't specify db name yet, it may not exist
+    $conn = new mysqli($conf['host'],$conf['user'],$conf['password']);
     if ( $conn->connect_error )
     {
       $this->fail( "Couldn't connect to database ({$conn->connect_errno}) {$conn->connect_error}" );
