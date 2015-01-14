@@ -31,7 +31,7 @@ class dbTestCase extends PHPUnit_Framework_TestCase
 
     // Create simple clean DB environment
     $conn->query( "drop database if exists `{$conf['db']}`" );
-    $conn->query( "create database `{$conf['db']}`" ) or die( "Couldn't create test database" );
+    $conn->query( "create database `{$conf['db']}`" ) or $this->fail( "Couldn't create test database" );
     $conn->query( "use `{$conf['db']}`");
     $conn->query( "create table test (id int unsigned not null primary key auto_increment, title varchar(40), description text)" );
   }
