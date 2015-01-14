@@ -100,6 +100,11 @@ class Helper
       return new helpController;
 
     $ctrl = $name . 'Controller';
+    if ( !class_exists( $ctrl ) )
+    {
+      return false;
+    }
+
     try
     {
       return new $ctrl(null, $args);

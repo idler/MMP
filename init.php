@@ -20,6 +20,5 @@ function mmpAutoload($class)
       return true;
     }
   }
-  throw new Exception("# class {$class} not found");
 }
 
