@@ -92,9 +92,9 @@ class dbTestCase extends PHPUnit_Framework_TestCase
    */
   protected function runController( $name )
   {
-    //ob_start();
+    ob_start();
     $ret = $this->getController( $name )->runStrategy();
-    //ob_end_clean();
+    ob_end_clean();
     return $ret;
   }
 
