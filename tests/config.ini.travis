@@ -1,0 +1,9 @@
+host=localhost
+user=travis
+password=
+db=mmpi_test
+savedir=temp_data
+verbose=On
+versiontable=db_revisions
+forceyes=On
+noninteractive=On

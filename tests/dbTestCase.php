@@ -15,11 +15,6 @@ class dbTestCase extends PHPUnit_Framework_TestCase
       $this->fail("Missing valid config.ini file in the unit tests directory");
     }
 
-    // Tweak the config a bit
-    $conf['savedir'] = __DIR__ . '/temp_data/';
-    $conf['forceyes'] = TRUE;
-    $conf['noninteractive'] = TRUE;
-
     // Make sure we have some clean, temporary output dir
     exec( "rm -rf " . escapeshellarg($conf['savedir']) );
     @mkdir( $conf['savedir'], 0777, TRUE );

@@ -1,6 +1,6 @@
 /.project
 /config.ini
-/cases/config.ini
+/tests/config.ini
 /db
 /.buildpath
 /.settings

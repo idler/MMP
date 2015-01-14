@@ -10,7 +10,7 @@ services:
   - mysql
 
 before_script:
-  - cp config.ini.sample tests/config.ini
+  - cp tests/config.ini.travis tests/config.ini
 
 script:
   - phpunit --bootstrap ./tests/bootstrap.php ./tests/
