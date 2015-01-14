@@ -278,7 +278,7 @@ class Helper
     $result = array();
     foreach($files as $file)
     {
-      $key = preg_replace('#[^0-9]#is', '', $file);
+      $key = preg_replace('#[^0-9]#is', '', basename($file) );
       $result[] = $key;
     }
     sort($result,SORT_NUMERIC);
