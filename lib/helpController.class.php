@@ -32,6 +32,7 @@ Available options:
   --savedir      directory to save schema.php and migrations
   --verbose      if value On script will output each executed query
   --versiontable table to keep db revisions new row for each revision
+  --versiontable-engine table engine for versiontable (MyISAM, InnoDB)
   
 For migrate command you can use strtotime format
 Examples:
