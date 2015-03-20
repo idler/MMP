@@ -14,6 +14,7 @@ class Helper
     'savedir' => array('req_val'),
     'verbose' => array('req_val'),
     'versiontable' => array('req_val'),
+    'versiontable-engine' => array('opt_val'),
     'forceyes' => array('opt_val'),
     'noninteractive' => array('opt_val'),
     'noprepost' => array('opt_val'),
@@ -28,6 +29,7 @@ class Helper
     'savedir' => null,
     'verbose' => null,
     'versiontable' => null,
+    'versiontable-engine' => "MyISAM",
     'forceyes' => false,
     'noninteractive' => false,
     'noprepost' => false,
@@ -172,11 +174,18 @@ class Helper
 
   static function initVersionTable()
   {
+    $engine = self::get("versiontable-engine");
+
+    if(!in_array($engine, array("MyISAM", "InnoDB"))) {
+        Output::error('mmp: wrong engine for versiontable "' . $engine . '"');
+        exit(1);
+    }
+
     $db = self::getDbObject();
     $tbl = self::get('versiontable');
     $rev = self::getCurrentVersion();
     $db->query("DROP TABLE IF EXISTS `{$tbl}`");
-    $db->query("CREATE TABLE `{$tbl}` (`rev` BIGINT(20) UNSIGNED, PRIMARY KEY(`rev`)) ENGINE=MyISAM");
+    $db->query("CREATE TABLE `{$tbl}` (`rev` BIGINT(20) UNSIGNED, PRIMARY KEY(`rev`)) ENGINE={$engine}");
     $db->query("TRUNCATE `{$tbl}`");
     $db->query("INSERT INTO `{$tbl}` VALUES({$rev})");
   }
