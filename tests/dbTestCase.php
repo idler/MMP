@@ -9,11 +9,11 @@ class dbTestCase extends PHPUnit_Framework_TestCase
   protected function setUp()
   {
     // Load test configuration
-    $conf = parse_ini_file(__DIR__.'/config.ini');
-    if ( $conf === FALSE )
+    if (!file_exists(__DIR__.'/config.ini'))
     {
       $this->fail("Missing valid config.ini file in the unit tests directory");
     }
+    $conf = parse_ini_file(__DIR__.'/config.ini');
 
     // Make sure we have some clean, temporary output dir
     exec( "rm -rf " . escapeshellarg($conf['savedir']) );
