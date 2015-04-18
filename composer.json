@@ -1,5 +1,5 @@
 {
-    "name": "idler/mmp",
+    "name": "mmp/mmp",
     "description": "Tool to versioning MySQL database schema with VCS",
     "license": "GPL-3.0",
     "autoload": {
