@@ -1,4 +1,11 @@
 {
+    "name": "idler/MMP",
+    "description": "Tool to versioning MySQL database schema with VCS",
+    "autoload": {
+        "psr-4": {
+            "": "lib/"
+        }
+    },
 	"require-dev": {
 		"satooshi/php-coveralls": "dev-master"
 	}
