@@ -1,7 +1,9 @@
-/.project
-/config.ini
-/tests/config.ini
-/tests/test_data/
-/db
-/.buildpath
-/.settings
+.project
+config.ini
+tests/config.ini
+tests/test_data/
+db
+.buildpath
+.settings
+vendor/
+phpunit.xml
