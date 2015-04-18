@@ -3,9 +3,9 @@
     "description": "Tool to versioning MySQL database schema with VCS",
     "license": "GPL-3.0",
     "autoload": {
-        "psr-4": {
-            "": "lib/"
-        }
+        "classmap": [
+            "lib/"
+        ]
     },
 	"require-dev": {
 		"satooshi/php-coveralls": "dev-master"
