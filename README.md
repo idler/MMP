@@ -13,7 +13,7 @@ To install MMP, add this to your composer.json:
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/zzanzare/MMP"
+            "url": "https://github.com/idler/MMP"
         }
     ]
 ```
