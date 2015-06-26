@@ -5,3 +5,5 @@
 /db
 /.buildpath
 /.settings
+/vendor/
+/phpunit.xml
