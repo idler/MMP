@@ -1,0 +1,6 @@
+Format : http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source : https://github.com/
+Files : *
+Copyright : Maxim Antonov <max.antonoff@gmail.com> Sergey Arbuzov <info@whitediver.com>
+License: GPL v3
+ Unspecified GPL v3 style license.

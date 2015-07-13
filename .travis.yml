@@ -1,5 +1,8 @@
 language: php
 
+env:
+  - fakeRoot=/tmp/mmp
+
 php:
   - 5.3
   - 5.4
@@ -14,3 +17,42 @@ before_script:
 
 script:
   - phpunit --bootstrap ./tests/bootstrap.php ./tests/
+
+after_success:
+  - gem install package_cloud
+  - install -d $fakeRoot
+  - install -d $fakeRoot/DEBIAN/
+  - install -d $fakeRoot/usr/share/doc/mmp/
+  - install -d $fakeRoot/usr/share/mmp/lib/
+  - install -d $fakeRoot/usr/bin/
+  - cp deploy/DEBIAN/copyright $fakeRoot/usr/share/doc/mmp/
+  - cp lib/* $fakeRoot/usr/share/mmp/lib/
+  - cp *.php $fakeRoot/usr/share/mmp/
+  - ln -s /usr/share/mmp/migration.php $fakeRoot/usr/bin/mmp
+  - sed -i "s|require_once __DIR__|require_once '/usr/bin/mmp/'|" $fakeRoot/usr/share/mmp/migration.php
+  - gzip -c -9 deploy/DEBIAN/changelog > $fakeRoot/usr/share/doc/mmp/changelog.Debian.gz
+  
+  - cp deploy/DEBIAN/* $fakeRoot/DEBIAN/
+  - sed -i "s|#build|$TRAVIS_BUILD_NUMBER|" $fakeRoot/DEBIAN/control
+  - sed -i "s|#family|squeeze|" $fakeRoot/DEBIAN/control
+  - fakeroot dpkg-deb --build $fakeRoot
+  - lintian --allow-root -L ">=important" /tmp/mmp.deb
+  - cp /tmp/mmp.deb mmp~squeeze.deb
+  - if [ $PACKAGECLOUD_REPO ] package_cloud push $PACKAGECLOUD_REPO/debian/squeeze mmp~squeeze.deb fi
+  
+  - cp deploy/DEBIAN/* $fakeRoot/DEBIAN/
+  - sed -i "s|#build|$TRAVIS_BUILD_NUMBER|" $fakeRoot/DEBIAN/control
+  - sed -i "s|#family|wheezy|" $fakeRoot/DEBIAN/control
+  - fakeroot dpkg-deb --build $fakeRoot
+  - lintian --allow-root -L ">=important" /tmp/mmp.deb
+  - cp /tmp/mmp.deb mmp~wheezy.deb
+  - if [ $PACKAGECLOUD_REPO ] package_cloud push $PACKAGECLOUD_REPO/debian/wheezy mmp~wheezy.deb fi
+  
+  - cp deploy/DEBIAN/* $fakeRoot/DEBIAN/
+  - sed -i "s|#build|$TRAVIS_BUILD_NUMBER|" $fakeRoot/DEBIAN/control
+  - sed -i "s|#family|jessie|" $fakeRoot/DEBIAN/control
+  - fakeroot dpkg-deb --build $fakeRoot
+  - lintian --allow-root -L ">=important" /tmp/mmp.deb
+  - cp /tmp/mmp.deb mmp~jessie.deb
+  - if [ $PACKAGECLOUD_REPO ] package_cloud push $PACKAGECLOUD_REPO/debian/jessie mmp~jessie.deb fi
+  
