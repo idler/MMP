@@ -8,15 +8,21 @@ php:
   - 5.4
   - 5.5
   - 5.6
+#  - hhvm
 
 services:
   - mysql
 
 before_script:
+  - composer install --dev --no-interaction
   - cp tests/config.ini.travis tests/config.ini
 
 script:
-  - phpunit --bootstrap ./tests/bootstrap.php ./tests/
+  - mkdir -p build/logs
+  - phpunit
+  
+after_script:
+  - php vendor/bin/coveralls -v
 
 after_success:
   - gem install package_cloud
@@ -55,4 +61,3 @@ after_success:
   - lintian --allow-root -L ">=important" /tmp/mmp.deb
   - cp /tmp/mmp.deb mmp~jessie.deb
   - if [ $PACKAGECLOUD_REPO ] package_cloud push $PACKAGECLOUD_REPO/debian/jessie mmp~jessie.deb fi
-  

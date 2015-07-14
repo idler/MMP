@@ -116,7 +116,6 @@ class MMPTask extends Task {
      * The init method.
      */
     public function init() {
-        date_default_timezone_set('Europe/Kiev');
         require_once __DIR__ . '/../init.php';
     }
 
