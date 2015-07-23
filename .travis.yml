@@ -26,6 +26,7 @@ after_script:
 
 after_success:
   - gem install package_cloud
+  - apt-get install alien
   - install -d $fakeRoot
   - install -d $fakeRoot/DEBIAN/
   - install -d $fakeRoot/usr/share/doc/mmp/
@@ -61,3 +62,6 @@ after_success:
   - lintian --allow-root -L ">=important" /tmp/mmp.deb
   - cp /tmp/mmp.deb mmp~jessie.deb
   - if [ $PACKAGECLOUD_REPO ] package_cloud push $PACKAGECLOUD_REPO/debian/jessie mmp~jessie.deb fi
+  - alien --to-rpm --scripts mmp~jessie.deb
+  - cp mmp~jessie.rpm mmp-$TRAVIS_BUILD_NUMBER.rpm
+  - if [ $PACKAGECLOUD_REPO ] package_cloud push $PACKAGECLOUD_REPO/el/7 mmp-$TRAVIS_BUILD_NUMBER.rpm fi

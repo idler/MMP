@@ -2,7 +2,7 @@ Section: misc
 Priority: optional
 Package: mmp
 Version: 0.0.0+#build~#family
-Description: Evanti dyband imitation gui
+Description: MySQL migration tool
  Special package to maintain mysql migrations
 Maintainer: Sergey Arbuzov <info@whitediver.com>
 Architecture: all

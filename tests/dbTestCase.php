@@ -16,8 +16,8 @@ class dbTestCase extends PHPUnit_Framework_TestCase
     $conf = parse_ini_file(__DIR__.'/config.ini');
 
     // Make sure we have some clean, temporary output dir
-    @rmdir($conf['savedir']);
-    @mkdir($conf['savedir'], 0777, TRUE);
+    exec( "rm -rf " . escapeshellarg($conf['savedir']) );
+    @mkdir( $conf['savedir'], 0777, TRUE );
 
     // Setup the system
     Helper::setConfig($conf);
@@ -43,7 +43,7 @@ class dbTestCase extends PHPUnit_Framework_TestCase
   protected function tearDown()
   {
     // Remove the temporary folder
-    @rmdir(__DIR__ . '/temp_data/');
+    exec( "rm -rf " . escapeshellarg(__DIR__ . '/temp_data/') );
   }
 
   /**
