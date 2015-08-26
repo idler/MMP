@@ -6,7 +6,7 @@ $cli_params = Helper::parseCommandLineArgs($argv);
 
 if(empty($cli_params['options']['config']))
 {
-  $cli_params['options']['config'] = __DIR__ . DIR_SEP . 'config.ini';
+  $cli_params['options']['config'] = __DIR__ . DIRECTORY_SEPARATOR . 'config.ini';
 }
 $config = array();
 if(file_exists($cli_params['options']['config']))
