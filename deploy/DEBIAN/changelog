@@ -1,0 +1,6 @@
+mmp (0.0.0+1) unstable; urgency=low
+2
+3   * Initial Release.
+4   * This is first iteration of Debian package.
+6
+7  -- Serge Arbuzov <info@whitediver.com>  Fri, 24 Jul 2015 01:13:31 +0300

@@ -1,0 +1,9 @@
+Section: misc
+Priority: optional
+Package: mmp
+Version: 0.0.0+#build~#family
+Description: MySQL migration tool
+ Special package to maintain mysql migrations
+Maintainer: Sergey Arbuzov <info@whitediver.com>
+Architecture: all
+Depends: php5, php5-cli, php5-mysql
