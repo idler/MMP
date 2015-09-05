@@ -5,6 +5,13 @@ class migrateController extends AbstractController
 
     protected $queries = [];
 
+    protected static function filterValidTimestamp($timestamp)
+    {
+        return ((is_numeric($timestamp))
+                && (+$timestamp <= PHP_INT_MAX)
+                && (+$timestamp >= ~PHP_INT_MAX) ? +$timestamp : false);
+    }
+
     public function runStrategy()
     {
         $revision = 0;
@@ -19,8 +26,14 @@ class migrateController extends AbstractController
 
         $target_migration = strtotime($str);
 
-        if (false === $target_migration) {
-            throw new Exception("Time is not correct");
+        if (false === $target_migration) { //did not specify valid time string, check if specified a timestamp
+            $target_migration = self::filterValidTimestamp($str);
+            if (false === $target_migration) { //did not specify valid timestamp, check if specified an alias
+                $target_migration = self::filterValidTimestamp(Helper::getRevByAlias($str));
+                if (false === $target_migration) { //did not specify valid alias
+                    throw new Exception("Time (or alias) is not correct");
+                }
+            }
         }
 
         $migrations = Helper::getAllMigrations();

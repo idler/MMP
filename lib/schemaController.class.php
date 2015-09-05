@@ -33,7 +33,17 @@ class schemaController extends AbstractController
         $vtab            = Helper::get('versiontable');
         $res             = $db->query("SELECT MAX(rev) FROM `{$vtab}`");
         $row             = $res->fetch_array(MYSQLI_NUM);
-        $this->queries[] = "INSERT INTO `{$vtab}` SET rev={$row[0]}";
+        $maxrev          = $row[0];
+        $this->queries[] = "INSERT INTO `{$vtab}` SET rev={$maxrev}";
+
+        $atab            = Helper::get('aliastable');
+        if (false !== $atab) {
+            $aprefix         = Helper::get('aliasprefix') ?: '';
+            $res             = $db->query("SELECT `alias` FROM `{$atab}` WHERE `rev` = {$maxrev}");
+            $row             = $res->fetch_array(MYSQLI_NUM);
+            $alias           = isset($row[0]) && ($row[0] !== null) ? $row[0] : "{$aprefix}0";
+            $this->queries[] = "INSERT INTO `{$atab}` SET rev={$maxrev}, alias='$alias'";
+        }
 
         return $this->writeInFile();
     }

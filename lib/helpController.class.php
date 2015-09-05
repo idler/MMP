@@ -34,14 +34,18 @@ Available options:
   --verbose             if value On script will output each executed query
   --versiontable        table to keep db revisions new row for each revision
   --versiontable-engine table engine for versiontable (MyISAM, InnoDB)
+  --aliastable          table to keep human-readable aliases for each revision
+  --aliasprefix         prefix for each human-readable alias
   
-For migrate command you can use strtotime format
+For migrate command you can use strtotime format, integer timestamps, or aliases
 Examples:
 *********************************************************************
 ./migrate.php migrate yesterday
 ./migrate.php migrate -2 hour
 ./migrate.php migrate +2 month
 ./migrate.php migrate 20 September 2001
+./migrate.php migrate 1441402159
+./migrate.php migrate my_alias_prefix_v5
 ./migrate.php migrate
 ********************************************************************
 Last example will update your database to latest version
