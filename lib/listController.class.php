@@ -14,9 +14,11 @@ class listController extends AbstractController
 
         $revisions = Helper::getDatabaseVersions($db);
         $revision  = Helper::getDatabaseVersion($db);
+        $aliases = Helper::getDatabaseAliases($db);
 
         foreach ($migrations as $migration) {
             $prefix = ($migration == $revision) ? ' *** ' : '     ';
+            $suffix = '    ';
 
             //Mark any unapplied revisions
             if ($migration < $revision && !in_array($migration, $revisions)) {
@@ -24,8 +26,12 @@ class listController extends AbstractController
             } else {
                 $prefix .= '    ';
             }
+            if (array_key_exists($migration,$aliases)){
+                $suffix .= '('. $aliases[$migration] . ')';
 
-            echo $prefix.date('r', $migration)."\n";
+            }
+
+            echo $prefix.date('r', $migration).$suffix."\n";
         }
     }
 }

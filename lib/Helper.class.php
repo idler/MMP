@@ -15,6 +15,8 @@ class Helper
             'verbose'             => ['req_val'],
             'versiontable'        => ['req_val'],
             'versiontable-engine' => ['opt_val'],
+            'aliastable'          => ['opt_val'],
+            'aliasprefix'         => ['opt_val'],
             'forceyes'            => ['opt_val'],
             'noninteractive'      => ['opt_val'],
             'noprepost'           => ['opt_val'],
@@ -30,6 +32,8 @@ class Helper
             'savedir'             => null,
             'verbose'             => null,
             'versiontable'        => null,
+            'aliastable'          => null,
+            'aliasprefix'         => null,
             'versiontable-engine' => "MyISAM",
             'forceyes'            => false,
             'noninteractive'      => false,
@@ -193,9 +197,10 @@ class Helper
         $db->query("CREATE TABLE `{$tbl}` (`rev` BIGINT(20) UNSIGNED, PRIMARY KEY(`rev`)) ENGINE={$engine}");
         $db->query("TRUNCATE `{$tbl}`");
         $db->query("INSERT INTO `{$tbl}` VALUES({$rev})");
+        self::initAliasTable($rev);
     }
 
-    static function initAliasTable()
+    static function initAliasTable($rev, $alias_suffix = 1)
     {
         $engine = self::get("versiontable-engine");
 
@@ -205,12 +210,16 @@ class Helper
         }
 
         $db  = self::getDbObject();
-        $tbl = self::get('versiontable');
-        $rev = self::getCurrentVersion();
+        $tbl = self::get('aliastable');
+        if (false === $tbl) {
+            return;
+        }
+        $alias_prefix = self::get('aliasprefix') ?: '';
+        $alias        = $alias_prefix.$alias_suffix;
         $db->query("DROP TABLE IF EXISTS `{$tbl}`");
-        $db->query("CREATE TABLE `{$tbl}` (`rev` BIGINT(20) UNSIGNED, PRIMARY KEY(`rev`)) ENGINE={$engine}");
+        $db->query("CREATE TABLE `{$tbl}` (`rev` BIGINT(20) UNSIGNED, `alias` VARCHAR(32), PRIMARY KEY(`rev`)) ENGINE={$engine}");
         $db->query("TRUNCATE `{$tbl}`");
-        $db->query("INSERT INTO `{$tbl}` VALUES({$rev})");
+        $db->query("INSERT INTO `{$tbl}` VALUES({$rev},'{$alias}')");
     }
 
     static function getCurrentVersion()
@@ -218,7 +227,71 @@ class Helper
         return time();
     }
 
-    static function getTables($db)
+    static function getCurrentAlias()
+    {
+        if (false === self::get('aliastable')) {
+            return false;
+        }
+
+        return (self::get('aliasprefix') ?: '').(string)(Helper::getMaxAliasVersion() + 1);
+    }
+
+    static function getMaxAliasVersion()
+    {
+        $db  = self::getDbObject();
+        $tbl = self::get('aliastable');
+        if (false === $tbl) {
+            return false;
+        }
+        $alias_prefix = self::get('aliasprefix') ?: '';
+
+        $res       = $db->query("SELECT MAX(REPLACE(`alias`,'{$alias_prefix}','')) FROM `{$tbl}`");
+        $row       = $res->fetch_array(MYSQLI_NUM);
+        $max_alias = +$row[0] ?: 0;
+
+        return $max_alias;
+    }
+
+    static function geAliasVersionByRev($rev)
+    {
+        $db  = self::getDbObject();
+        $tbl = self::get('aliastable');
+        if (false === $tbl) {
+            return false;
+        }
+        $alias_prefix = self::get('aliasprefix') ?: '';
+
+        $res = $db->query("SELECT REPLACE(`alias`,'{$alias_prefix}','') FROM `{$tbl}` WHERE `rev` = {$rev}");
+        $row = $res->fetch_array(MYSQLI_NUM);
+        if (isset($row[0])) {
+            return +$row[0];
+        } else {
+            return null;
+        }
+    }
+
+    static function getRevByAlias($alias)
+    {
+        $db  = self::getDbObject();
+        $tbl = self::get('aliastable');
+        if (false === $tbl) {
+            return false;
+        }
+        if (is_numeric($alias)) {
+            $alias = (self::get('aliasprefix') ?: '').$alias;
+        }
+
+        $res = $db->query("SELECT `rev` FROM `{$tbl}` WHERE `alias` = '{$alias}'");
+        $row = $res->fetch_array(MYSQLI_NUM);
+        if (isset($row[0])) {
+            return +$row[0];
+        } else {
+            return null;
+        }
+    }
+
+
+    static function getTables(Mysqli $db)
     {
         $tables = [];
         $result = $db->query('show tables');
@@ -307,6 +380,25 @@ class Helper
         return $result;
     }
 
+    static function getDatabaseAliases(Mysqli $db)
+    {
+        $result = [];
+        $tbl    = self::get('aliastable');
+        if (false === $tbl){
+            return [];
+        }
+        $res    = $db->query("SELECT rev, alias FROM `{$tbl}` ORDER BY rev ASC");
+        if ($res === false) {
+            return [];
+        }
+
+        while ($row = $res->fetch_array(MYSQLI_NUM)) {
+            $result[trim($row[0])] = trim($row[1]);
+        }
+
+        return $result;
+    }
+
 
     static function applyMigration($revision, $db, $direction = 'Up')
     {
@@ -350,7 +442,7 @@ class Helper
 
     }
 
-    static function createMigrationContent($version, $diff)
+    static function createMigrationContent($version, $alias, $diff)
     {
         $indent = self::TAB;
 
@@ -380,7 +472,13 @@ class Helper
         }
 
         $content
-            .= "${indent}${indent});\n"."${indent}}\n"."\n"."${indent}protected function getRev() { return {$version}; }\n"."\n"."}\n";
+            .= "${indent}${indent});\n"."${indent}}\n"."\n"."${indent}protected function getRev() { return {$version}; }\n"."\n";
+
+        if (false !== $alias) {
+            $content .= "${indent}protected function getAlias() { return '{$alias}'; }\n"."\n";
+        }
+
+        $content .= "}\n";
 
         return $content;
     }

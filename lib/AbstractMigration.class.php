@@ -63,6 +63,13 @@ abstract class AbstractMigration
     {
         return isset($this->rev) ? $this->rev : 0;
     }
+    /**
+     * Get current alias
+     */
+    protected function getAlias()
+    {
+        return (Helper::get('aliasprefix') ?: '') . (string) (isset($this->alias) ? $this->alias : 0);
+    }
 
     public function  __construct(mysqli $db)
     {
@@ -106,6 +113,16 @@ abstract class AbstractMigration
         $query = "INSERT INTO `{$verT}` SET `rev`={$rev}";
         Output::verbose($query);
         $this->db->query($query);
+
+        $aliasT  = Helper::get('aliastable');
+        if ($aliasT){
+            $alias = $this->getAlias();
+            $query = "INSERT IGNORE INTO `{$aliasT}` SET `rev`={$rev}, `alias`='{$alias}'";
+            Output::verbose($query);
+            $this->db->query($query);
+        }
+
+
     }
 
     /**
@@ -141,5 +158,6 @@ abstract class AbstractMigration
         $query = "DELETE FROM `{$verT}` WHERE `rev`={$rev}";
         Output::verbose($query);
         $this->db->query($query);
+
     }
 }
