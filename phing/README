@@ -15,6 +15,8 @@ Phing build.xml example:
                 savedir="db"
                 verbose="Off"
                 versiontable="db_revisions"
+                aliastable="db_alias"
+                aliasprefix="project_v"
                 exclude_tables="authors, books"
                 config_file="config.ini"
                 action="migrate"
