@@ -2,7 +2,9 @@
 
 class Helper
 {
-    const TAB = "  ";
+    const TAB = '  ';
+    const UP = 'Up';
+    const DOWN = 'Down';
 
     static protected $config_tpl
         = [
@@ -400,7 +402,7 @@ class Helper
     }
 
 
-    static function applyMigration($revision, $db, $direction = 'Up')
+    static function applyMigration($revision, $db, $direction = self::UP)
     {
         require_once self::get('savedir').'/migration'.$revision.'.php';
         $classname = 'Migration'.$revision;
