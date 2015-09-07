@@ -12,6 +12,8 @@
                 savedir="db"
                 verbose="Off"
                 versiontable="db_revisions"
+                aliastable="db_alias"
+                aliasprefix="project_v"
                 exclude_tables=""
                 action="migrate"
                 action_options="now"

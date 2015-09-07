@@ -69,7 +69,18 @@ class MMPTask extends Task {
     public function setVersiontable($str) {
         $this->params['versiontable'] = $str;
     }
-
+    /**
+     * The setter for params["aliastable"]
+     */
+    public function setAliastable($str) {
+        $this->params['aliastable'] = $str;
+    }
+    /**
+     * The setter for params["aliasprefix"]
+     */
+    public function setAliasprefix($str) {
+        $this->params['aliasprefix'] = $str;
+    }
     /**
      * The setter for params["savedir"]
      */
