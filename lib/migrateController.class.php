@@ -18,8 +18,8 @@ class migrateController extends AbstractController
         if ($aliases === null) {
             $aliases = Helper::getDatabaseAliases();
         }
-        if (array_key_exists($migration,$aliases)) {
-            $current_suffix = Helper::TAB.'('.$aliases[$migration].')';
+        if (array_key_exists($migration, $aliases)) {
+            $current_suffix = Helper::TAB."(\033[32m".$aliases[$migration]."\033[37m)";
 
             return $current_suffix;
         } else {
@@ -81,17 +81,17 @@ class migrateController extends AbstractController
         $unapplied_migrations = array_diff($migrations, $revisions);
 
         if (empty($migrations) || (empty($unapplied_migrations) && $revision == max($migrations) && $target_migration > $revision)) {
-            echo 'No new migrations available'.PHP_EOL;
+            echo "\033[31m". 'No new migrations available'. "\033[37m".PHP_EOL;
 
             return true;
         }
         if ($revision < min($migrations) && $target_migration < $revision) {
-            echo 'No older migrations available'.PHP_EOL;
+            echo "\033[31m". 'No older migrations available'. "\033[37m".PHP_EOL;
 
             return true;
         }
         if ($target_migration == $revision) {
-            echo 'Target migration is the current revision:  '.date('r', $target_migration).self::getMigrationAlias($target_migration).PHP_EOL;
+            echo "\033[31m".'Target migration is the current revision:  ' . "\033[37m" . date('r', $target_migration).self::getMigrationAlias($target_migration).PHP_EOL;
 
             return true;
         }
