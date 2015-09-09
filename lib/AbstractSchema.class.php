@@ -8,7 +8,7 @@ abstract class AbstractSchema
         return isset($this->queries) ? $this->queries : [];
     }
 
-    public function load($db)
+    public function load(Mysqli $db)
     {
         foreach ($this->buildQueries() as $query) {
             Output::verbose($query);

@@ -72,8 +72,6 @@ class dbDiff
             }
         }
 
-        sort($current_tables);
-        sort($published_tables);
         $this->createFullTableDifference($current_tables, $published_tables);
 
         $common = array_intersect($current_tables, $published_tables);
@@ -121,7 +119,7 @@ class dbDiff
         }
     }
 
-    protected function getColumnList($result)
+    protected function getColumnList(mysqli_result $result)
     {
         $columns = [];
         while ($row = $result->fetch_assoc()) {
@@ -405,8 +403,8 @@ class dbDiff
 
     protected function getRoutinesDifference($type)
     {
-        $current_routines   = Helper::getRoutines($this->current, $type);
-        $published_routines = Helper::getRoutines($this->published, $type);
+        $current_routines   = Helper::getRoutines($type);
+        $published_routines = Helper::getRoutines($type);
 
         sort($current_routines);
         sort($published_routines);

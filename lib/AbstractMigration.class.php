@@ -114,14 +114,6 @@ abstract class AbstractMigration
         Output::verbose($query);
         $this->db->query($query);
 
-        $aliasT  = Helper::get('aliastable');
-        if ($aliasT){
-            $alias = $this->getAlias();
-            $query = "INSERT IGNORE INTO `{$aliasT}` SET `rev`={$rev}, `alias`='{$alias}'";
-            Output::verbose($query);
-            $this->db->query($query);
-        }
-
 
     }
 

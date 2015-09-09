@@ -6,8 +6,6 @@
  * Package: MPP
  */
 
-require_once "phing/Task.php";
-
 class MMPTask extends Task {
 
     /**
@@ -37,6 +35,8 @@ class MMPTask extends Task {
 
     /**
      * The setter for params["host"]
+     *
+     * @param $str
      */
     public function setHost($str) {
         $this->params['host'] = $str;
@@ -44,6 +44,8 @@ class MMPTask extends Task {
 
     /**
      * The setter for params["user"]
+     *
+     * @param $str
      */
     public function setUser($str) {
         $this->params['user'] = $str;
@@ -51,6 +53,8 @@ class MMPTask extends Task {
 
     /**
      * The setter for params["password"]
+     *
+     * @param $str
      */
     public function setPassword($str) {
         $this->params['password'] = $str;
@@ -58,6 +62,8 @@ class MMPTask extends Task {
 
     /**
      * The setter for params["db"]
+     *
+     * @param $str
      */
     public function setDb($str) {
         $this->params['db'] = $str;
@@ -65,24 +71,35 @@ class MMPTask extends Task {
 
     /**
      * The setter for params["versiontable"]
+     *
+     * @param $str
      */
     public function setVersiontable($str) {
         $this->params['versiontable'] = $str;
     }
+
     /**
      * The setter for params["aliastable"]
+     *
+     * @param $str
      */
     public function setAliastable($str) {
         $this->params['aliastable'] = $str;
     }
+
     /**
      * The setter for params["aliasprefix"]
+     *
+     * @param $str
      */
     public function setAliasprefix($str) {
         $this->params['aliasprefix'] = $str;
     }
+
     /**
      * The setter for params["savedir"]
+     *
+     * @param $str
      */
     public function setSavedir($str) {
         $this->params['savedir'] = __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . $str;
@@ -90,6 +107,8 @@ class MMPTask extends Task {
 
     /**
      * The setter for params["verbose"]
+     *
+     * @param $str
      */
     public function setVerbose($str) {
         $this->params['verbose'] = $str;
@@ -97,6 +116,8 @@ class MMPTask extends Task {
 
     /**
      * The setter for params["excludetables"]
+     *
+     * @param $str
      */
     public function setExclude_tables($str) {
         $this->params['exclude_tables'] = array_filter(explode(",",preg_replace("/\s/m", "", $str)));
@@ -104,6 +125,8 @@ class MMPTask extends Task {
 
     /**
      * The setter for the attribute "config_file"
+     *
+     * @param $str
      */
     public function setConfig_file($str) {
         $this->config_file = __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . $str;
@@ -111,6 +134,8 @@ class MMPTask extends Task {
 
     /**
      * The setter for the attribute "action_options"
+     *
+     * @param $str
      */
     public function setAction_options($str) {
         $this->action_options = explode(" ", trim($str, " "));
@@ -118,6 +143,8 @@ class MMPTask extends Task {
 
     /**
      * The setter for the attribute "action"
+     *
+     * @param $str
      */
     public function setAction($str) {
         $this->action = $str;
@@ -153,4 +180,3 @@ class MMPTask extends Task {
     }
 }
 
-?>
