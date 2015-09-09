@@ -14,7 +14,7 @@ class listController extends AbstractController
 
         $revisions = Helper::getDatabaseVersions($db);
         $revision  = Helper::getDatabaseVersion($db);
-        $aliases = Helper::getDatabaseAliases($db);
+        $aliases = Helper::getDatabaseAliases();
 
         foreach ($migrations as $migration) {
             $prefix = ($migration == $revision) ? ' *** ' : '     ';

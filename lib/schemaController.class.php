@@ -18,13 +18,13 @@ class schemaController extends AbstractController
             $this->queries[] = $query;
         }
 
-        foreach (Helper::getRoutines($db, "PROCEDURE") as $routine) {
+        foreach (Helper::getRoutines("PROCEDURE") as $routine) {
             $query           = Helper::getSqlForRoutineCreation($routine, $db, 'PROCEDURE');
             $this->queries[] = "DROP PROCEDURE IF EXISTS `{$routine}`";
             $this->queries[] = $query;
         }
 
-        foreach (Helper::getRoutines($db, "FUNCTION") as $routine) {
+        foreach (Helper::getRoutines("FUNCTION") as $routine) {
             $query           = Helper::getSqlForRoutineCreation($routine, $db, 'FUNCTION');
             $this->queries[] = "DROP FUNCTION IF EXISTS `{$routine}`";
             $this->queries[] = $query;
@@ -36,7 +36,7 @@ class schemaController extends AbstractController
         $maxrev          = $row[0];
         $this->queries[] = "INSERT INTO `{$vtab}` SET rev={$maxrev}";
 
-        $atab            = Helper::get('aliastable');
+        $atab = Helper::get('aliastable');
         if (false !== $atab) {
             $aprefix         = Helper::get('aliasprefix') ?: '';
             $res             = $db->query("SELECT `alias` FROM `{$atab}` WHERE `rev` = {$maxrev}");
@@ -78,7 +78,7 @@ class schemaController extends AbstractController
             $c = fread(STDIN, 1);
 
             if ($c === 'Y' or $c === 'y') {
-                return;
+                return true;
             }
             if ($c === 'N' or $c === 'n') {
                 echo "\nExit without saving\n";
@@ -87,6 +87,8 @@ class schemaController extends AbstractController
             }
 
         } while (true);
+
+        return true;
     }
 
 

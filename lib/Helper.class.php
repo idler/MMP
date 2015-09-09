@@ -56,6 +56,10 @@ class Helper
      * Parse command line into config options and commands with its parameters
      *
      * $param array $args List of arguments provided from command line
+     *
+     * @param $args
+     *
+     * @return array
      */
     static function parseCommandLineArgs($args)
     {
@@ -324,9 +328,10 @@ class Helper
         return $query;
     }
 
-    static function getRoutines($db, $type)
+    static function getRoutines($type)
     {
         $routines = [];
+        $db  = self::getDbObject();
         $result   = $db->query("show $type status where Db=DATABASE()");
         if ($result === false) {
             return $routines;
@@ -338,7 +343,7 @@ class Helper
         return $routines;
     }
 
-    static function getSqlForRoutineCreation($rname, $db, $type)
+    static function getSqlForRoutineCreation($rname, Mysqli $db, $type)
     {
         $tres  = $db->query("SHOW CREATE $type `{$rname}`");
         $trow  = $tres->fetch_array(MYSQLI_NUM);
@@ -382,9 +387,10 @@ class Helper
         return $result;
     }
 
-    static function getDatabaseAliases(Mysqli $db)
+    static function getDatabaseAliases()
     {
         $result = [];
+        $db  = self::getDbObject();
         $tbl    = self::get('aliastable');
         if (false === $tbl){
             return [];
@@ -404,6 +410,7 @@ class Helper
 
     static function applyMigration($revision, $db, $direction = self::UP)
     {
+        /** @noinspection PhpIncludeInspection */
         require_once self::get('savedir').'/migration'.$revision.'.php';
         $classname = 'Migration'.$revision;
         $migration = new $classname($db);

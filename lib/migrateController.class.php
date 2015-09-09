@@ -6,14 +6,19 @@ class migrateController extends AbstractController
     protected $queries = [];
 
     /**
-     * @param $migration
-     * @param $aliases
+     * @param $migration String|Integer
      *
      * @return string
+     * @internal param $aliases
+     *
      */
-    protected static function getMigrationAlias($migration, $aliases)
+    protected static function getMigrationAlias($migration)
     {
-        if (array_key_exists($migration, $aliases)) {
+        static $aliases = null;
+        if ($aliases === null) {
+            $aliases = Helper::getDatabaseAliases();
+        }
+        if (array_key_exists($migration,$aliases)) {
             $current_suffix = Helper::TAB.'('.$aliases[$migration].')';
 
             return $current_suffix;
@@ -31,10 +36,13 @@ class migrateController extends AbstractController
                 && (+$timestamp >= ~PHP_INT_MAX) ? +$timestamp : false);
     }
 
+    /**
+     * @return bool
+     * @throws Exception
+     */
     public function runStrategy()
     {
-        $revision = 0;
-        $db       = Helper::getDbObject();
+        $db = Helper::getDbObject();
 
 
         if (empty($this->args)) {
@@ -55,43 +63,40 @@ class migrateController extends AbstractController
             }
         }
 
-        $migrations   = Helper::getAllMigrations();
-        $aliases      = Helper::getDatabaseAliases($db);
-        $revisions    = Helper::getDatabaseVersions($db);
-        $target_alias = $migration_alias = Helper::TAB;
+        $migrations = Helper::getAllMigrations();
+        $revisions  = Helper::getDatabaseVersions($db);
 
 
         if ($revisions === false) {
             throw new Exception('Could not access revisions table');
         }
 
-        if (!empty($revisions)) {
-            $revision = max($revisions);
-        } else {
+        if (empty($revisions)) {
             Output::error('Revision table is empty. Initial schema not applied properly?');
+
             return false;
         }
 
-        if (array_key_exists($target_migration, $aliases)) {
-            $target_alias .= '('.$aliases[$target_migration].')';
-        }
-
+        $revision             = max($revisions);
         $unapplied_migrations = array_diff($migrations, $revisions);
 
         if (empty($migrations) || (empty($unapplied_migrations) && $revision == max($migrations) && $target_migration > $revision)) {
             echo 'No new migrations available'.PHP_EOL;
+
             return true;
-        } elseif ($revision < min($migrations) && $target_migration < $revision) {
-            echo 'No older migrations available'.PHP_EOL;
-            return true;
-        } else {
-            if ($target_migration == $revision) {
-                echo 'Target migration is the current revision:  '.date('r', $target_migration).$target_alias.PHP_EOL;
-                return true;
-            } else {
-                echo "Will migrate: ".date('r',$revision).self::getMigrationAlias($revision, $aliases) . ' ---> ' . date('r', $target_migration).self::getMigrationAlias($target_migration, $aliases).PHP_EOL.PHP_EOL;
-            }
         }
+        if ($revision < min($migrations) && $target_migration < $revision) {
+            echo 'No older migrations available'.PHP_EOL;
+
+            return true;
+        }
+        if ($target_migration == $revision) {
+            echo 'Target migration is the current revision:  '.date('r', $target_migration).self::getMigrationAlias($target_migration).PHP_EOL;
+
+            return true;
+        }
+        echo "Will migrate: ".date('r', $revision).self::getMigrationAlias($revision).' ---> '.date('r', $target_migration).self::getMigrationAlias($target_migration).PHP_EOL.PHP_EOL;
+
 
         $direction = $revision <= $target_migration ? Helper::UP : Helper::DOWN;
         if ($direction === Helper::DOWN) {
@@ -107,7 +112,7 @@ class migrateController extends AbstractController
                 if ($migration <= $target_migration) {
                     break;
                 }
-                echo str_pad('ROLLBACK:',10).date('r', $migration).self::getMigrationAlias($migration, $aliases).PHP_EOL;
+                echo str_pad('ROLLBACK:', 10).date('r', $migration).self::getMigrationAlias($migration).PHP_EOL;
                 Helper::applyMigration($migration, $db, $direction);
             }
         } else {
@@ -119,12 +124,14 @@ class migrateController extends AbstractController
                 if ($migration > $target_migration) {
                     break;
                 }
-                echo str_pad('APPLY:',10).date('r', $migration).self::getMigrationAlias($migration, $aliases).PHP_EOL;
+                echo str_pad('APPLY:', 10).date('r', $migration).self::getMigrationAlias($migration).PHP_EOL;
                 Helper::applyMigration($migration, $db, $direction);
             }
         }
         $current_revision = Helper::getDatabaseVersion($db);
-        echo str_pad('NOW AT:',10).date('r', $current_revision).self::getMigrationAlias($current_revision, $aliases).PHP_EOL;
+        echo str_pad('NOW AT:', 10).date('r', $current_revision).self::getMigrationAlias($current_revision).PHP_EOL;
+
+        return true;
     }
 }
 

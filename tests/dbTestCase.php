@@ -70,26 +70,36 @@ class dbTestCase extends PHPUnit_Framework_TestCase
     $this->assertFalse( $this->runController("create"), 'No migration expected but one has been created' );
   }
 
-  /**
-   * Helper function - execute SQL query, it must succeed
-   */
+    /**
+     * Helper function - execute SQL query, it must succeed
+     *
+     * @param $query
+     */
   protected function query( $query )
   {
     $db = $this->getDb();
     $this->assertTrue( $db->query( $query ), "Couldn't execute query: '$query', error: {$db->error}" );
   }
 
-  /**
-   * Helper function - create instance of MMP controller class
-   */
+    /**
+     * Helper function - create instance of MMP controller class
+     *
+     * @param $name
+     *
+     * @return object
+     */
   protected function getController( $name )
   {
     return Helper::getController( $name, $this->getConfig() );
   }
 
-  /**
-   * Helper function - run given controller
-   */
+    /**
+     * Helper function - run given controller
+     *
+     * @param $name
+     *
+     * @return
+     */
   protected function runController( $name )
   {
     ob_start();
