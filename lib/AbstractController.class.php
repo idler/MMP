@@ -2,14 +2,14 @@
 
 abstract class AbstractController
 {
-  protected $db   = null;
-  protected $args = [];
+    protected $db   = null;
+    protected $args = array();
 
-  function __construct($db = null, $args = [])
-  {
-    $this->db   = $db;
-    $this->args = $args;
-  }
+    function __construct($db = null, $args = array())
+    {
+        $this->db   = $db;
+        $this->args = $args;
+    }
 
-  abstract public function runStrategy();
+    public abstract function runStrategy();
 }

@@ -2,8 +2,8 @@
 
 class GetOpt
 {
-    static protected $default_config = ['optVal'];
-    private static   $errors         = [];
+    protected static $default_config = array('optVal');
+    private static   $errors         = array();
 
     /**
      * Parse and extract left-most options up to the first non-option argument
@@ -15,15 +15,13 @@ class GetOpt
      */
     static function extractLeft(&$args, $opts)
     {
-        $result       = [];
-        self::$errors = [];
+        $result       = array();
+        self::$errors = array();
         $opts         = self::normalizeTpl($opts);
         $short_opts   = self::mapShortOpts($opts);
-
         while (!empty($args)) {
             $arg = array_shift($args);
-            if (preg_match('/^--([a-z][a-z\-]*)/i', $arg, $matches)) //long options start with "--"
-            {
+            if (preg_match('/^--([a-z][a-z\\-]*)/i', $arg, $matches)) {
                 $matches[1] = strtolower($matches[1]);
                 if (isset($opts[$matches[1]])) {
                     try {
@@ -38,8 +36,7 @@ class GetOpt
 
                     return false;
                 }
-            } elseif (preg_match('/^-([a-z])/', $arg, $matches)) //short options start with '-', are case-sensitive
-            {
+            } elseif (preg_match('/^-([a-z])/', $arg, $matches)) {
                 foreach (str_split($matches[1]) as $o) {
                     if (isset($short_opts[$o])) {
                         try {
@@ -65,16 +62,6 @@ class GetOpt
     }
 
     /**
-     * Return list errors encountered while parsing the arguments
-     *
-     * @return array List of errors
-     */
-    static function errors()
-    {
-        return self::$errors;
-    }
-
-    /**
      * Expand array values without custom keys into "'value' => true" pairs
      *
      * @param array $opts Array to process
@@ -84,7 +71,7 @@ class GetOpt
     private static function normalizeTpl($opts)
     {
         foreach ($opts as &$tpl) {
-            $ntpl = [];
+            $ntpl = array();
             foreach ($tpl as $k => $t) {
                 if (is_string($k)) {
                     $ntpl[$k] = $t;
@@ -107,8 +94,7 @@ class GetOpt
      */
     private static function mapShortOpts($opts)
     {
-        $result = [];
-
+        $result = array();
         foreach ($opts as $k => $o) {
             if (!empty($o['short'])) {
                 $result[$o['short']] = $k;
@@ -155,5 +141,14 @@ class GetOpt
 
         return null;
     }
-}
 
+    /**
+     * Return list errors encountered while parsing the arguments
+     *
+     * @return array List of errors
+     */
+    static function errors()
+    {
+        return self::$errors;
+    }
+}

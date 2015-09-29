@@ -2,12 +2,6 @@
 
 abstract class AbstractSchema
 {
-
-    protected function buildQueries()
-    {
-        return isset($this->queries) ? $this->queries : [];
-    }
-
     public function load(Mysqli $db)
     {
         foreach ($this->buildQueries() as $query) {
@@ -18,4 +12,8 @@ abstract class AbstractSchema
         }
     }
 
+    protected function buildQueries()
+    {
+        return isset($this->queries) ? $this->queries : array();
+    }
 }
