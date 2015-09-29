@@ -14,4 +14,3 @@ class Output
         fwrite(STDERR, $msg.PHP_EOL);
     }
 }
-

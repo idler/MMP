@@ -5,29 +5,24 @@
  * Date: 11/7/12
  * Package: MPP
  */
-
-class MMPTask extends Task {
-
+class MMPTask extends Task
+{
     /**
      * The params passed in the buildfile.
      */
     private $params = array();
-
     /**
      * The config_file passed in the buildfile.
      */
     private $config_file = null;
-
     /**
      * Config options for MMP.
      */
     private $options = array();
-
     /**
      * Migration options for MMP.
      */
     private $action_options = null;
-
     /**
      * Migration options for MMP.
      */
@@ -38,7 +33,8 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setHost($str) {
+    public function setHost($str)
+    {
         $this->params['host'] = $str;
     }
 
@@ -47,7 +43,8 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setUser($str) {
+    public function setUser($str)
+    {
         $this->params['user'] = $str;
     }
 
@@ -56,7 +53,8 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setPassword($str) {
+    public function setPassword($str)
+    {
         $this->params['password'] = $str;
     }
 
@@ -65,7 +63,8 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setDb($str) {
+    public function setDb($str)
+    {
         $this->params['db'] = $str;
     }
 
@@ -74,7 +73,8 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setVersiontable($str) {
+    public function setVersiontable($str)
+    {
         $this->params['versiontable'] = $str;
     }
 
@@ -83,7 +83,8 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setAliastable($str) {
+    public function setAliastable($str)
+    {
         $this->params['aliastable'] = $str;
     }
 
@@ -92,7 +93,8 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setAliasprefix($str) {
+    public function setAliasprefix($str)
+    {
         $this->params['aliasprefix'] = $str;
     }
 
@@ -101,8 +103,9 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setSavedir($str) {
-        $this->params['savedir'] = __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . $str;
+    public function setSavedir($str)
+    {
+        $this->params['savedir'] = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.$str;
     }
 
     /**
@@ -110,7 +113,8 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setVerbose($str) {
+    public function setVerbose($str)
+    {
         $this->params['verbose'] = $str;
     }
 
@@ -119,8 +123,9 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setExclude_tables($str) {
-        $this->params['exclude_tables'] = array_filter(explode(",",preg_replace("/\s/m", "", $str)));
+    public function setExclude_tables($str)
+    {
+        $this->params['exclude_tables'] = array_filter(explode(',', preg_replace('/\\s/m', '', $str)));
     }
 
     /**
@@ -128,8 +133,9 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setConfig_file($str) {
-        $this->config_file = __DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . $str;
+    public function setConfig_file($str)
+    {
+        $this->config_file = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.$str;
     }
 
     /**
@@ -137,8 +143,9 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setAction_options($str) {
-        $this->action_options = explode(" ", trim($str, " "));
+    public function setAction_options($str)
+    {
+        $this->action_options = explode(' ', trim($str, ' '));
     }
 
     /**
@@ -146,37 +153,37 @@ class MMPTask extends Task {
      *
      * @param $str
      */
-    public function setAction($str) {
+    public function setAction($str)
+    {
         $this->action = $str;
     }
 
     /**
      * The init method.
      */
-    public function init() {
-        require_once __DIR__ . '/../init.php';
+    public function init()
+    {
+        require_once __DIR__.'/../init.php';
     }
 
     /**
      * The main entry point method.
      */
-    public function main() {
-        if(file_exists($this->config_file)){
+    public function main()
+    {
+        if (file_exists($this->config_file)) {
             $this->options = parse_ini_file($this->config_file);
         }
-        $this->options = array_replace($this->options, $this->params); //task params overrides everything
-
+        $this->options = array_replace($this->options, $this->params);
+        //task params overrides everything
         Helper::setConfig($this->options);
-
         $controller = Helper::getController($this->action, $this->action_options);
-
-        if($controller !== false){
+        if ($controller !== false) {
             $controller->runStrategy();
-        }else{
-            Output::error('mmp: unknown command "' . $this->action . '"');
+        } else {
+            Output::error('mmp: unknown command "'.$this->action.'"');
             Helper::getController('help')->runStrategy();
-            exit(1);
+            die(1);
         }
     }
 }
-

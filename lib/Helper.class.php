@@ -2,31 +2,29 @@
 
 class Helper
 {
-    const TAB = '  ';
-    const UP = 'Up';
+    const TAB  = '  ';
+    const UP   = 'Up';
     const DOWN = 'Down';
-
-    static protected $config_tpl
-        = [
-            'config'              => ['short' => 'c', 'req_val'],
-            'host'                => ['req_val'],
-            'user'                => ['req_val'],
-            'password'            => ['req_val'],
-            'db'                  => ['req_val'],
-            'savedir'             => ['req_val'],
-            'verbose'             => ['req_val'],
-            'versiontable'        => ['req_val'],
-            'versiontable-engine' => ['opt_val'],
-            'aliastable'          => ['opt_val'],
-            'aliasprefix'         => ['opt_val'],
-            'forceyes'            => ['opt_val'],
-            'noninteractive'      => ['opt_val'],
-            'noprepost'           => ['opt_val'],
-        ];
-
-    static protected $config
-        = [
-            'config'              => null, //path to alternate config file
+    protected static $config_tpl
+        = array(
+            'config'              => array('short' => 'c', 'req_val'),
+            'host'                => array('req_val'),
+            'user'                => array('req_val'),
+            'password'            => array('req_val'),
+            'db'                  => array('req_val'),
+            'savedir'             => array('req_val'),
+            'verbose'             => array('req_val'),
+            'versiontable'        => array('req_val'),
+            'versiontable-engine' => array('opt_val'),
+            'aliastable'          => array('opt_val'),
+            'aliasprefix'         => array('opt_val'),
+            'forceyes'            => array('opt_val'),
+            'noninteractive'      => array('opt_val'),
+            'noprepost'           => array('opt_val')
+        );
+    protected static $config
+        = array(
+            'config'              => null,
             'host'                => null,
             'user'                => null,
             'password'            => null,
@@ -36,21 +34,11 @@ class Helper
             'versiontable'        => null,
             'aliastable'          => null,
             'aliasprefix'         => null,
-            'versiontable-engine' => "MyISAM",
+            'versiontable-engine' => 'MyISAM',
             'forceyes'            => false,
             'noninteractive'      => false,
-            'noprepost'           => false,
-        ];
-
-    static function setConfig($cnf)
-    {
-        self::$config = array_replace(self::$config, $cnf);
-    }
-
-    static function getConfig()
-    {
-        return self::$config;
-    }
+            'noprepost'           => false
+        );
 
     /**
      * Parse command line into config options and commands with its parameters
@@ -63,22 +51,19 @@ class Helper
      */
     static function parseCommandLineArgs($args)
     {
-        $parsed_args = ['options' => [], 'command' => ['name' => null, 'args' => []]];
-
+        $parsed_args = array('options' => array(), 'command' => array('name' => null, 'args' => array()));
         array_shift($args);
         $opts = GetOpt::extractLeft($args, self::$config_tpl);
         if ($opts === false) {
             Output::error('mmp: '.reset(GetOpt::errors()));
-            exit(1);
+            die(1);
         } else {
             $parsed_args['options'] = $opts;
         }
-
         //if we didn't traverse the full array just now, move on to command parsing
         if (!empty($args)) {
             $parsed_args['command']['name'] = array_shift($args);
         }
-
         //consider any remaining arguments as command arguments
         $parsed_args['command']['args'] = $args;
 
@@ -111,22 +96,60 @@ class Helper
      *
      * @return object Initialized controller, False if not found
      */
-    static function getController($name = null, $args = [])
+    static function getController($name = null, $args = array())
     {
         if (empty($name)) {
-            return new helpController;
+            return new helpController();
         }
-
         $ctrl = $name.'Controller';
         if (!class_exists($ctrl)) {
             return false;
         }
-
         try {
             return new $ctrl(null, $args);
         } catch (Exception $e) {
             return false;
         }
+    }
+
+    static function initDirForSavedMigrations()
+    {
+        if (is_dir(self::$config['savedir'])) {
+            return;
+        }
+        mkdir(self::$config['savedir'], 493, true);
+    }
+
+    static function getTmpDbObject()
+    {
+        $config       = self::getConfig();
+        $tmpname      = $config['db'].'_'.self::getCurrentVersion();
+        $config['db'] = $tmpname;
+        $db           = self::getDbObject();
+        $db->query("create database `{$config['db']}`");
+        $tmpdb = self::getDbObject($config);
+        $tmpdb->query('SET FOREIGN_KEY_CHECKS = 0');
+        register_shutdown_function(function () use ($config, $tmpdb) {
+            Output::verbose("database {$config['db']} has been dropped");
+            $tmpdb->query("DROP DATABASE `{$config['db']}`");
+        });
+
+        return $tmpdb;
+    }
+
+    static function getConfig()
+    {
+        return self::$config;
+    }
+
+    static function setConfig($cnf)
+    {
+        self::$config = array_replace(self::$config, $cnf);
+    }
+
+    static function getCurrentVersion()
+    {
+        return time();
     }
 
     /**
@@ -137,7 +160,7 @@ class Helper
      *
      * @return Mysqli
      */
-    static function getDbObject($config = [])
+    static function getDbObject($config = array())
     {
         static $db = null;
         $conf = self::$config;
@@ -157,45 +180,13 @@ class Helper
         return new Mysqli($conf['host'], $conf['user'], $conf['password'], $conf['db']);
     }
 
-    static function initDirForSavedMigrations()
-    {
-        if (is_dir(self::$config['savedir'])) {
-            return;
-        }
-        mkdir(self::$config['savedir'], 0755, true);
-    }
-
-    static public function get($key)
-    {
-        return isset(self::$config[$key]) ? self::$config[$key] : false;
-    }
-
-    static function getTmpDbObject()
-    {
-        $config       = self::getConfig();
-        $tmpname      = $config['db'].'_'.self::getCurrentVersion();
-        $config['db'] = $tmpname;
-        $db           = self::getDbObject();
-        $db->query("create database `{$config['db']}`");
-        $tmpdb = self::getDbObject($config);
-        $tmpdb->query("SET FOREIGN_KEY_CHECKS = 0");
-        register_shutdown_function(function () use ($config, $tmpdb) {
-            Output::verbose("database {$config['db']} has been dropped");
-            $tmpdb->query("DROP DATABASE `{$config['db']}`");
-        });
-
-        return $tmpdb;
-    }
-
     static function initVersionTable()
     {
-        $engine = self::get("versiontable-engine");
-
-        if (!in_array($engine, ["MyISAM", "InnoDB"])) {
+        $engine = self::get('versiontable-engine');
+        if (!in_array($engine, array('MyISAM', 'InnoDB'))) {
             Output::error('mmp: wrong engine for versiontable "'.$engine.'"');
-            exit(1);
+            die(1);
         }
-
         $db  = self::getDbObject();
         $tbl = self::get('versiontable');
         $rev = self::getCurrentVersion();
@@ -206,15 +197,18 @@ class Helper
         self::initAliasTable($rev);
     }
 
+    public static function get($key)
+    {
+        return isset(self::$config[$key]) ? self::$config[$key] : false;
+    }
+
     static function initAliasTable($rev, $alias_suffix = 1)
     {
-        $engine = self::get("versiontable-engine");
-
-        if (!in_array($engine, ["MyISAM", "InnoDB"])) {
+        $engine = self::get('versiontable-engine');
+        if (!in_array($engine, array('MyISAM', 'InnoDB'))) {
             Output::error('mmp: wrong engine for versiontable "'.$engine.'"');
-            exit(1);
+            die(1);
         }
-
         $db  = self::getDbObject();
         $tbl = self::get('aliastable');
         if (false === $tbl) {
@@ -226,11 +220,6 @@ class Helper
         $db->query("CREATE TABLE `{$tbl}` (`rev` BIGINT(20) UNSIGNED, `alias` VARCHAR(32), PRIMARY KEY(`rev`)) ENGINE={$engine}");
         $db->query("TRUNCATE `{$tbl}`");
         $db->query("INSERT INTO `{$tbl}` VALUES({$rev},'{$alias}')");
-    }
-
-    static function getCurrentVersion()
-    {
-        return time();
     }
 
     static function getCurrentAlias()
@@ -250,10 +239,9 @@ class Helper
             return false;
         }
         $alias_prefix = self::get('aliasprefix') ?: '';
-
-        $res       = $db->query("SELECT MAX(REPLACE(`alias`,'{$alias_prefix}','')) FROM `{$tbl}`");
-        $row       = $res->fetch_array(MYSQLI_NUM);
-        $max_alias = +$row[0] ?: 0;
+        $res          = $db->query("SELECT MAX(REPLACE(`alias`,'{$alias_prefix}','')) FROM `{$tbl}`");
+        $row          = $res->fetch_array(MYSQLI_NUM);
+        $max_alias    = +$row[0] ?: 0;
 
         return $max_alias;
     }
@@ -266,9 +254,8 @@ class Helper
             return false;
         }
         $alias_prefix = self::get('aliasprefix') ?: '';
-
-        $res = $db->query("SELECT REPLACE(`alias`,'{$alias_prefix}','') FROM `{$tbl}` WHERE `rev` = {$rev}");
-        $row = $res->fetch_array(MYSQLI_NUM);
+        $res          = $db->query("SELECT REPLACE(`alias`,'{$alias_prefix}','') FROM `{$tbl}` WHERE `rev` = {$rev}");
+        $row          = $res->fetch_array(MYSQLI_NUM);
         if (isset($row[0])) {
             return +$row[0];
         } else {
@@ -286,7 +273,6 @@ class Helper
         if (is_numeric($alias)) {
             $alias = (self::get('aliasprefix') ?: '').$alias;
         }
-
         $res = $db->query("SELECT `rev` FROM `{$tbl}` WHERE `alias` = '{$alias}'");
         $row = $res->fetch_array(MYSQLI_NUM);
         if (isset($row[0])) {
@@ -296,13 +282,12 @@ class Helper
         }
     }
 
-
     static function getTables(Mysqli $db)
     {
-        $tables = [];
+        $tables = array();
         $result = $db->query('show tables');
         if (!$result) {
-            return [];
+            return array();
         }
         while ($row = $result->fetch_array(MYSQLI_NUM)) {
             $tables[] = $row[0];
@@ -322,7 +307,7 @@ class Helper
     {
         $tres  = $db->query("SHOW CREATE TABLE `{$tname}`");
         $trow  = $tres->fetch_array(MYSQLI_NUM);
-        $query = preg_replace('#AUTO_INCREMENT=\S+#is', '', $trow[1]);
+        $query = preg_replace('#AUTO_INCREMENT=\\S+#is', '', $trow[1]);
 
         //$query = preg_replace("#\n\s*#",' ',$query);
         return $query;
@@ -330,12 +315,13 @@ class Helper
 
     static function getRoutines($type)
     {
-        $routines = [];
-        $db  = self::getDbObject();
-        $result   = $db->query("show $type status where Db=DATABASE()");
+        $routines = array();
+        $db       = self::getDbObject();
+        $result   = $db->query("show {$type} status where Db=DATABASE()");
         if ($result === false) {
             return $routines;
-        } // Don't fail if the DB doesn't support STPs
+        }
+        // Don't fail if the DB doesn't support STPs
         while ($row = $result->fetch_array(MYSQLI_NUM)) {
             $routines[] = $row[1];
         }
@@ -345,9 +331,9 @@ class Helper
 
     static function getSqlForRoutineCreation($rname, Mysqli $db, $type)
     {
-        $tres  = $db->query("SHOW CREATE $type `{$rname}`");
+        $tres  = $db->query("SHOW CREATE {$type} `{$rname}`");
         $trow  = $tres->fetch_array(MYSQLI_NUM);
-        $query = preg_replace('#DEFINER=\S+#is', '', $trow[2]);
+        $query = preg_replace('#DEFINER=\\S+#is', '', $trow[2]);
 
         return $query;
     }
@@ -373,13 +359,12 @@ class Helper
      */
     static function getDatabaseVersions(Mysqli $db)
     {
-        $result = [];
+        $result = array();
         $tbl    = self::get('versiontable');
         $res    = $db->query("SELECT rev FROM `{$tbl}` ORDER BY rev ASC");
         if ($res === false) {
             return false;
         }
-
         while ($row = $res->fetch_array(MYSQLI_NUM)) {
             $result[] = $row[0];
         }
@@ -389,45 +374,19 @@ class Helper
 
     static function getDatabaseAliases()
     {
-        $result = [];
-        $db  = self::getDbObject();
+        $result = array();
+        $db     = self::getDbObject();
         $tbl    = self::get('aliastable');
-        if (false === $tbl){
-            return [];
+        if (false === $tbl) {
+            return array();
         }
-        $res    = $db->query("SELECT rev, alias FROM `{$tbl}` ORDER BY rev ASC");
+        $res = $db->query("SELECT rev, alias FROM `{$tbl}` ORDER BY rev ASC");
         if ($res === false) {
-            return [];
+            return array();
         }
-
         while ($row = $res->fetch_array(MYSQLI_NUM)) {
             $result[trim($row[0])] = trim($row[1]);
         }
-
-        return $result;
-    }
-
-
-    static function applyMigration($revision, $db, $direction = self::UP)
-    {
-        /** @noinspection PhpIncludeInspection */
-        require_once self::get('savedir').'/migration'.$revision.'.php';
-        $classname = 'Migration'.$revision;
-        $migration = new $classname($db);
-        $method    = 'run'.$direction;
-        $migration->$method();
-    }
-
-    static function getAllMigrations()
-    {
-        $dir    = self::get('savedir');
-        $files  = glob($dir.'/migration*.php');
-        $result = [];
-        foreach ($files as $file) {
-            $key      = preg_replace('#[^0-9]#is', '', basename($file));
-            $result[] = $key;
-        }
-        sort($result, SORT_NUMERIC);
 
         return $result;
     }
@@ -437,114 +396,117 @@ class Helper
         $fname = self::get('savedir').'/schema.php';
         if (!file_exists($fname)) {
             echo "File: {$fname} does not exist!\n";
-            exit;
+            die;
         }
-
         require_once $fname;
         $sc = new Schema();
         $sc->load($db);
-
         $migrations = self::getAllMigrations();
         foreach ($migrations as $revision) {
             self::applyMigration($revision, $db);
         }
+    }
 
+    static function getAllMigrations()
+    {
+        $dir    = self::get('savedir');
+        $files  = glob($dir.'/migration*.php');
+        $result = array();
+        foreach ($files as $file) {
+            $key      = preg_replace('#[^0-9]#is', '', basename($file));
+            $result[] = $key;
+        }
+        sort($result, SORT_NUMERIC);
+
+        return $result;
+    }
+
+    static function applyMigration($revision, $db, $direction = self::UP)
+    {
+        /** @noinspection PhpIncludeInspection */
+        require_once self::get('savedir').'/migration'.$revision.'.php';
+        $classname = 'Migration'.$revision;
+        $migration = new $classname($db);
+        $method    = 'run'.$direction;
+        $migration->{$method}();
     }
 
     static function createMigrationContent($version, $alias, $diff)
     {
         $indent = self::TAB;
-
         $content
-            = "<?php\n"."\n"."class Migration{$version} extends AbstractMigration\n"."{\n";
-
-        if (!intval(Helper::get("noprepost"))) {
-            $content
-                .= "${indent}/**\n"."${indent} * @todo Return action which should run before db modification\n"."${indent} */\n"."${indent}protected function buildPreup() { return array(); }\n"
-                   ."${indent}/**\n"."${indent} * @todo Return action which should run after db modification\n"."${indent} */\n"."${indent}protected function buildPostup() { return array(); }\n"
-                   ."${indent}/**\n"."${indent} * @todo Return action which should run before db rollback\n"."${indent} */\n"."${indent}protected function buildPredown() { return array(); }\n"
-                   ."${indent}/**\n"."${indent} * @todo Return action which should run after db rollback\n"."${indent} */\n"."${indent}protected function buildPostdown() { return array(); }\n"."\n";
+                = '<?php
+'.'
+'."class Migration{$version} extends AbstractMigration\n".'{
+';
+        if (!intval(Helper::get('noprepost'))) {
+            $content .= "{$indent}/**\n"."{$indent} * @todo Return action which should run before db modification\n"."{$indent} */\n"."{$indent}protected function buildPreup() { return array(); }\n"
+                        ."{$indent}/**\n"."{$indent} * @todo Return action which should run after db modification\n"."{$indent} */\n"."{$indent}protected function buildPostup() { return array(); }\n"
+                        ."{$indent}/**\n"."{$indent} * @todo Return action which should run before db rollback\n"."{$indent} */\n"."{$indent}protected function buildPredown() { return array(); }\n"
+                        ."{$indent}/**\n"."{$indent} * @todo Return action which should run after db rollback\n"."{$indent} */\n"."{$indent}protected function buildPostdown() { return array(); }\n".'
+';
         }
-
-        $content
-            .= "${indent}protected function buildUp()\n"."${indent}{\n"."${indent}${indent}return array(\n";
-
+        $content .= "{$indent}protected function buildUp()\n"."{$indent}{\n"."{$indent}{$indent}return array(\n";
         foreach ($diff['up'] as $sql) {
-            $content .= self::formatString("${indent}${indent}${indent}", ',', $sql);
+            $content .= self::formatString("{$indent}{$indent}{$indent}", ',', $sql);
         }
-
-        $content
-            .= "${indent}${indent});\n"."${indent}}\n"."\n"."${indent}protected function buildDown()\n"."${indent}{\n"."${indent}${indent}return array(\n";
-
+        $content .= "{$indent}{$indent});\n"."{$indent}}\n".'
+'."{$indent}protected function buildDown()\n"."{$indent}{\n"."{$indent}{$indent}return array(\n";
         foreach ($diff['down'] as $sql) {
-            $content .= self::formatString("${indent}${indent}${indent}", ',', $sql);
+            $content .= self::formatString("{$indent}{$indent}{$indent}", ',', $sql);
         }
-
-        $content
-            .= "${indent}${indent});\n"."${indent}}\n"."\n"."${indent}protected function getRev() { return {$version}; }\n"."\n";
-
+        $content .= "{$indent}{$indent});\n"."{$indent}}\n".'
+'."{$indent}protected function getRev() { return {$version}; }\n".'
+';
         if (false !== $alias) {
-            $content .= "${indent}protected function getAlias() { return '{$alias}'; }\n"."\n";
+            $content .= "{$indent}protected function getAlias() { return '{$alias}'; }\n".'
+';
         }
-
-        $content .= "}\n";
+        $content
+            .= '}
+';
 
         return $content;
     }
 
-    static function createSchema($queries)
-    {
-        $indent = self::TAB;
-
-        $content
-            = "<?php\n"."class Schema extends AbstractSchema\n"."{\n"."${indent}protected function buildQueries()\n"."${indent}{\n"."${indent}${indent}return array(\n";
-
-        foreach ($queries as $q) {
-            $content .= self::formatString("${indent}${indent}${indent}", ',', $q);
-        }
-
-        $content
-            .= "${indent}${indent});\n"."${indent}}\n"."}\n";
-
-        return $content;
-    }
-
-    static private function formatString($indent, $suffix, $content)
+    private static function formatString($indent, $suffix, $content)
     {
         $result = '';
-        $lines  = explode("\n", $content);
+        $lines  = explode('
+', $content);
         for ($i = 0; $i < count($lines); $i++) {
-            $isFirst = ($i == 0);
-            $isLast  = ($i >= count($lines) - 1);
-
-            $line = self::escapeString($lines[$i].($isLast ? "" : "\n"));
-
+            $isFirst = $i == 0;
+            $isLast  = $i >= count($lines) - 1;
+            $line    = self::escapeString($lines[$i].($isLast
+                    ? ''
+                    : '
+'));
             // Line prefix contains concatenation operator
             $lineprefix = $isFirst ? '' : '. ';
-
             // Line suffix contains submitted string suffix
             $linesuffix = $isLast ? $suffix : '';
-
-            $result .= $indent.$lineprefix.'"'.$line.'"'.$linesuffix."\n";
+            $result .= $indent.$lineprefix.'"'.$line.'"'.$linesuffix.'
+';
         }
 
         return $result;
     }
 
-    static private function escapeString($string)
+    private static function escapeString($string)
     {
-        $convert = [
-            "\\" => "\\\\",
-            "\n" => "\\n",
-            "\r" => "\\r",
-            "\"" => "\\\"",
-            "\v" => "\\v",
-            "\e" => "\\e",
-            "\f" => "\\f",
-            "\$" => "\\$"
-        ];
-
-        $ret = '';
+        $convert = array(
+            '\\' => '\\\\',
+            '
+'    => '\\n',
+            '
+'    => '\\r',
+            '"'  => '\\"',
+            ''  => '\\v',
+            ''  => '\\e',
+            ''  => '\\f',
+            '$'  => '\\$'
+        );
+        $ret     = '';
         for ($i = 0; $i < strlen($string); $i++) {
             $ch = $string[$i];
             if (isset($convert[$ch])) {
@@ -555,5 +517,22 @@ class Helper
         }
 
         return $ret;
+    }
+
+    static function createSchema($queries)
+    {
+        $indent = self::TAB;
+        $content
+                = '<?php
+'.'class Schema extends AbstractSchema
+'.'{
+'."{$indent}protected function buildQueries()\n"."{$indent}{\n"."{$indent}{$indent}return array(\n";
+        foreach ($queries as $q) {
+            $content .= self::formatString("{$indent}{$indent}{$indent}", ',', $q);
+        }
+        $content .= "{$indent}{$indent});\n"."{$indent}}\n".'}
+';
+
+        return $content;
     }
 }
