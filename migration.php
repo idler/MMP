@@ -1,7 +1,4 @@
-<?php
-
-?>
-    #!/usr/bin/env php
+#!/usr/bin/env php
 <?php
 require_once __DIR__.'/init.php';
 $cli_params = Helper::parseCommandLineArgs($argv);
@@ -13,6 +10,7 @@ if (file_exists($cli_params['options']['config'])) {
     $config = parse_ini_file($cli_params['options']['config']);
 }
 $config = array_replace($config, $cli_params['options']);
+
 //command line overrides everything
 Helper::setConfig($config);
 if (!Helper::checkConfigEnough()) {

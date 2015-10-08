@@ -19,9 +19,11 @@ class GetOpt
         self::$errors = array();
         $opts         = self::normalizeTpl($opts);
         $short_opts   = self::mapShortOpts($opts);
+        $not_opts     = array();
+
         while (!empty($args)) {
             $arg = array_shift($args);
-            if (preg_match('/^--([a-z][a-z\\-]*)/i', $arg, $matches)) {
+            if (preg_match('/^--([a-z][a-z\\-_]*)/i', $arg, $matches)) {
                 $matches[1] = strtolower($matches[1]);
                 if (isset($opts[$matches[1]])) {
                     try {
@@ -53,11 +55,10 @@ class GetOpt
                     }
                 }
             } else {
-                array_unshift($args, $arg);
-                break;
+                array_push($not_opts,$arg);
             }
         }
-
+        $args = $not_opts;
         return $result;
     }
 
