@@ -54,6 +54,7 @@ class Helper
         $parsed_args = array('options' => array(), 'command' => array('name' => null, 'args' => array()));
         array_shift($args);
         $opts = GetOpt::extractLeft($args, self::$config_tpl);
+
         if ($opts === false) {
             Output::error('mmp: '.reset(GetOpt::errors()));
             die(1);
@@ -117,9 +118,14 @@ class Helper
         if (is_dir(self::$config['savedir'])) {
             return;
         }
-        mkdir(self::$config['savedir'], 493, true);
+        if (self::$config['savedir'][0]==='~'){
+            self::$config['savedir'] = str_replace('~',getenv('HOME'),self::$config['savedir']);
+        }
+        if (is_dir(self::$config['savedir'])) {
+            return;
+        }
+        mkdir(self::$config['savedir'], 0755, true);
     }
-
     static function getTmpDbObject()
     {
         $config       = self::getConfig();
@@ -145,6 +151,7 @@ class Helper
     static function setConfig($cnf)
     {
         self::$config = array_replace(self::$config, $cnf);
+
     }
 
     static function getCurrentVersion()
