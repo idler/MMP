@@ -5,4 +5,5 @@ db=mmpi_test
 savedir=db
 verbose=On
 versiontable=db_revisions
-
+aliastable=db_alias
+aliasprefix=project_v
