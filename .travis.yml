@@ -14,7 +14,7 @@ services:
   - mysql
 
 before_script:
-  - composer install --dev --no-interaction
+  - composer install --no-interaction
   - cp tests/config.ini.travis tests/config.ini
 
 script:
