@@ -14,6 +14,7 @@
                 <directory>./composer</directory>
                 <directory>./tests</directory>
                 <directory>./travis</directory>
+                <directory>./phing</directory>
                 <directory>./vendor</directory>
                 <directory>./temp_data</directory>
             </exclude>
