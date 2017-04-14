@@ -14,16 +14,42 @@ abstract class AbstractMigration
     }
 
     /**
+     * Start transaction
+     */
+    protected function begin(){
+        $this->db->begin_transaction(MYSQLI_TRANS_START_WITH_CONSISTENT_SNAPSHOT,get_class($this));
+    }
+
+    /**
+     * Commit transaction
+     */
+    protected function commit(){
+        $this->db->commit();
+    }
+
+    /**
+     * Rollback transaction
+     */
+    protected function rollback(){
+        $this->db->rollback();
+        Output::error("Transaction was rolled back. Now we have to stop further migration!");
+        exit();
+    }
+
+    /**
      * Apply this migration
      */
     public function runUp()
     {
+        $this->begin();
+
         foreach ($this->buildPreup() as $query) {
             Output::verbose('PREUP: '.$query);
             if ($this->db->query($query)) {
                 Output::verbose('Ok');
             } else {
-                Output::verbose($this->db->error);
+                Output::error($this->db->error);
+                $this->rollback();
             }
         }
         foreach ($this->buildUp() as $query) {
@@ -31,7 +57,8 @@ abstract class AbstractMigration
             if ($this->db->query($query)) {
                 Output::verbose('Ok');
             } else {
-                Output::verbose($this->db->error);
+                Output::error($this->db->error);
+                $this->rollback();
             }
         }
         foreach ($this->buildPostup() as $query) {
@@ -39,7 +66,8 @@ abstract class AbstractMigration
             if ($this->db->query($query)) {
                 Output::verbose('Ok');
             } else {
-                Output::verbose($this->db->error);
+                Output::error($this->db->error);
+                $this->rollback();
             }
         }
         $verT  = Helper::get('versiontable');
@@ -47,6 +75,8 @@ abstract class AbstractMigration
         $query = "INSERT INTO `{$verT}` SET `rev`={$rev}";
         Output::verbose($query);
         $this->db->query($query);
+
+        $this->commit();
     }
 
     /**
@@ -86,24 +116,32 @@ abstract class AbstractMigration
      */
     public function runDown()
     {
+        $this->begin();
+
         foreach ($this->buildPredown() as $query) {
             Output::verbose('PREDOWN: '.$query);
             if ($this->db->query($query)) {
                 Output::verbose('Ok');
             } else {
-                Output::verbose($this->db->error);
+                Output::error($this->db->error);
+                $this->rollback();
             }
         }
         foreach ($this->buildDown() as $query) {
             Output::verbose('DOWN:'.$query);
-            $this->db->query($query);
+            if($this->db->query($query)){
+                Output::verbose('Ok');
+            }else{
+                Output::error($this->db->error);
+                $this->rollback();
+            }
         }
         foreach ($this->buildPostdown() as $query) {
             Output::verbose('POSTDOWN: '.$query);
             if ($this->db->query($query)) {
                 Output::verbose('Ok');
             } else {
-                Output::verbose($this->db->error);
+                Output::error($this->db->error);
             }
         }
         $verT  = Helper::get('versiontable');
@@ -111,6 +149,8 @@ abstract class AbstractMigration
         $query = "DELETE FROM `{$verT}` WHERE `rev`={$rev}";
         Output::verbose($query);
         $this->db->query($query);
+        
+        $this->commit();
     }
 
     /**
