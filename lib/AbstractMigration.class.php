@@ -14,7 +14,8 @@ abstract class AbstractMigration
     }
 
     /**
-     * Start transaction
+     * Start transaction, BUT!!!!!! it not help to break migration safely.
+     * https://dev.mysql.com/doc/refman/5.7/en/implicit-commit.html 
      */
     protected function begin(){
         $this->db->begin_transaction(MYSQLI_TRANS_START_WITH_CONSISTENT_SNAPSHOT,get_class($this));
@@ -149,7 +150,7 @@ abstract class AbstractMigration
         $query = "DELETE FROM `{$verT}` WHERE `rev`={$rev}";
         Output::verbose($query);
         $this->db->query($query);
-        
+
         $this->commit();
     }
 
